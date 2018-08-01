@@ -1,22 +1,29 @@
 {
-  "id": "df837743-814f-46bc-91ec-e5433b3cd2ce",
-  "timestamp": "2018-08-01T19:05:19.478Z",
-  "lang": "en",
-  "result": {
-    "source": "agent",
-    "resolvedQuery": "Whats the weather in amsterdam?",
-    "speech": "",
+  "responseId": "899d197a-7567-48e7-b767-74e56ee3174f",
+  "queryResult": {
+    "queryText": "Whats the weather in amsterdam?",
     "action": "weather",
-    "actionIncomplete": false,
     "parameters": {
       "date-time": "",
       "location": {
         "city": "Amsterdam"
       }
     },
-    "contexts": [
+    "allRequiredParamsPresent": true,
+    "fulfillmentText": "Error, service unavailable.",
+    "fulfillmentMessages": [
       {
-        "name": "weather",
+        "text": {
+          "text": [
+            "Error, service unavailable."
+          ]
+        }
+      }
+    ],
+    "outputContexts": [
+      {
+        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
+        "lifespanCount": 2,
         "parameters": {
           "date-time.original": "",
           "location.original": "amsterdam?",
@@ -25,31 +32,18 @@
             "city": "Amsterdam",
             "city.original": "amsterdam?"
           }
-        },
-        "lifespan": 2
+        }
       }
     ],
-    "metadata": {
-      "intentId": "83519d74-f6ba-4bfa-ae54-1ff8d936abf0",
-      "webhookUsed": "true",
-      "webhookForSlotFillingUsed": "false",
-      "isFallbackIntent": "false",
-      "intentName": "weather"
+    "intent": {
+      "name": "projects/sam-rxjabc/agent/intents/83519d74-f6ba-4bfa-ae54-1ff8d936abf0",
+      "displayName": "weather"
     },
-    "fulfillment": {
-      "speech": "Error, service unavailable.",
-      "messages": [
-        {
-          "type": 0,
-          "speech": "Error, service unavailable."
-        }
-      ]
-    },
-    "score": 1
+    "intentDetectionConfidence": 1,
+    "languageCode": "en"
   },
-  "status": {
-    "code": 200,
-    "errorType": "success"
+  "originalDetectIntentRequest": {
+    "payload": {}
   },
-  "sessionId": "217e9332-7d72-7f2b-6635-a59004c7d878"
+  "session": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878"
 }

@@ -5,6 +5,7 @@ import datetime
 import time
 import iso8601
 import requests
+from copy import deepcopy
 
 
 from .constants import (DARK_SKY_URL, GOOGLE_MAPS_TIMEZONE_URL, GOOGLE_MAPS_GEOCODE_URL,
@@ -72,8 +73,8 @@ def get_weather_data(coordinates, include=None):
     url = generate_url(coordinates)
     params = {'units': 'si'}
     if include is not None:
+        weather_parameters = deepcopy(WEATHER_PARAMETERS)
         for param in include:
-            weather_parameters = WEATHER_PARAMETERS
             weather_parameters.remove(param)
         params['exclude'] = ','.join(weather_parameters)
     return get_json(url, params=params)
@@ -188,7 +189,7 @@ def get_weather_summary_for_hour(coordinates, time_input):
     # type: (dict) -> str
     """
     Returns weather summary for the specific hour
-    
+
     :param coordinates: The coordinates to get weather summary for
     :param time_input: The specific hour to get weather summary for
     :returns: a str summary  of the upcoming weather at the specified hour located at coordinates
