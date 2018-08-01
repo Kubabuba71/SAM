@@ -1,0 +1,55 @@
+{
+  "id": "df837743-814f-46bc-91ec-e5433b3cd2ce",
+  "timestamp": "2018-08-01T19:05:19.478Z",
+  "lang": "en",
+  "result": {
+    "source": "agent",
+    "resolvedQuery": "Whats the weather in amsterdam?",
+    "speech": "",
+    "action": "weather",
+    "actionIncomplete": false,
+    "parameters": {
+      "date-time": "",
+      "location": {
+        "city": "Amsterdam"
+      }
+    },
+    "contexts": [
+      {
+        "name": "weather",
+        "parameters": {
+          "date-time.original": "",
+          "location.original": "amsterdam?",
+          "date-time": "",
+          "location": {
+            "city": "Amsterdam",
+            "city.original": "amsterdam?"
+          }
+        },
+        "lifespan": 2
+      }
+    ],
+    "metadata": {
+      "intentId": "83519d74-f6ba-4bfa-ae54-1ff8d936abf0",
+      "webhookUsed": "true",
+      "webhookForSlotFillingUsed": "false",
+      "isFallbackIntent": "false",
+      "intentName": "weather"
+    },
+    "fulfillment": {
+      "speech": "Error, service unavailable.",
+      "messages": [
+        {
+          "type": 0,
+          "speech": "Error, service unavailable."
+        }
+      ]
+    },
+    "score": 1
+  },
+  "status": {
+    "code": 200,
+    "errorType": "success"
+  },
+  "sessionId": "217e9332-7d72-7f2b-6635-a59004c7d878"
+}
