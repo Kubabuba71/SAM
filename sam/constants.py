@@ -2,7 +2,9 @@ import os
 
 # Constants related to weather functionality
 
-DARKSKY_URL = 'https://api.darksky.net/forecast/04b3caa34ed42ad8bb58ccecee191e91/'
+DARK_SKY_URL = 'https://api.darksky.net/forecast/'
+
+DARK_SKY_KEY = os.environ['DARK_SKY_KEY']
 
 GOOGLE_MAPS_TIMEZONE_URL = 'https://maps.googleapis.com/maps/api/timezone/json'
 

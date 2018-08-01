@@ -7,14 +7,21 @@ import iso8601
 import requests
 
 
-from .constants import (DARKSKY_URL, GOOGLE_MAPS_TIMEZONE_URL, GOOGLE_MAPS_GEOCODE_URL,
-                        GOOGLE_MAPS_TIMEZONE_KEY, GOOGLE_MAPS_GEOCODE_KEY)
+from .constants import (DARK_SKY_URL, GOOGLE_MAPS_TIMEZONE_URL, GOOGLE_MAPS_GEOCODE_URL,
+                        DARK_SKY_KEY, GOOGLE_MAPS_TIMEZONE_KEY, GOOGLE_MAPS_GEOCODE_KEY)
+
+WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'flags']
 
 
 def get_offset_from_utc(coordinates):
+    # type: (dict) -> int
     """
-    Return the offset for daylight-savings time in seconds
+    Calculate the offset coordinates has from utc
+
+    :param coordinates: The coordinates for which the offset are being calculated
+    :return: the offset coordinates has from utc time
     """
+
     current_epoch_time = time.time()
     url = ''.join([GOOGLE_MAPS_TIMEZONE_URL, '?location=', str(coordinates['lat']), ',',
                    str(coordinates['lng']), '&timestamp=', str(int(current_epoch_time)),
@@ -37,10 +44,46 @@ def get_json(url, params=None):
         return requests.get(url, params=params).json()
 
 
+def generate_url(coordinates):
+    # type: (dict) -> str
+    """
+    Generate a dark_sky url with lat and lng
+
+    :param coordinates: dict containing the lat and lng keys (and their respective values)
+    :return: The generated dark_sky url, with lat and lng properly formatted and positioned
+    """
+    lat = coordinates['lat']
+    lng = coordinates['lng']
+    url = '{}{}{}{}{}{}'.format(DARK_SKY_URL, DARK_SKY_KEY, '/', lat, ',', lng)
+    return url
+
+
+def get_weather_data(coordinates, include=None):
+    # type: (dict, Optional(list[str])) -> dict
+    """
+    Returns a dict (json), with weather data for the specified coordinates.
+    If include is specified, only that data is retrieved.
+    Otherwise, all data is retrieved.
+
+    :param coordinates: The coordinates for which to get the weather data
+    :param include: Optional list of json data to include
+    :returns: a dict (json) with (the specified) data
+    """
+    url = generate_url(coordinates)
+    params = {'units': 'si'}
+    if include is not None:
+        for param in include:
+            weather_parameters = WEATHER_PARAMETERS
+            weather_parameters.remove(param)
+        params['exclude'] = ','.join(weather_parameters)
+    return get_json(url, params=params)
+
+
 def get_coordinates(location):
     # type: (str) -> dict
     """
-    Returns a dict, with the coordinates for specified location
+    Returns a dict (json), with the coordinates for specified location
+
     :param location: the location for which coordinates are to be parsed
     :returns: dict that contains lat and lng
     """
@@ -56,89 +99,67 @@ def get_coordinates(location):
     return coordinates
 
 
-def get_weather_data_all(coordinates):
+def get_weather_data_all(coordinates,):
+    # type: (dict, Optional(list[str])) -> dict
     """
-    :param coordinates: The coordinates to get all weather data for
+    Returns a dict (json), with all weather data for the specified coordinates
+
+    :param coordinates: The coordinates for which to get the weather data
     :returns: a dict (json) with all weather data
     Return all weather forecast data
     """
-    url = (
-        DARKSKY_URL
-        + str(coordinates['lat'])
-        + ','
-        + str(coordinates['lng'])
-        + '/?units=si'
-    )
-    return get_json(url)
-
-
-def get_weather_data_minutely(coordinates):
-    """
-    Return minutely weather data
-    :param coordinates: The coordinates to get all weather data for
-    :returns: a dict (json) with minutely weather data
-    """
-    url = (
-        DARKSKY_URL
-        + str(coordinates['lat'])
-        + ','
-        + str(coordinates['lng'])
-        + '/?units=si&exclude=currently,hourly,daily,alerts,flags'
-    )
-    return get_json(url)
-
-
-def get_weather_data_hourly(coordinates):
-    """
-    Return hourly weather data
-    :param coordinates: The coordinates to get all weather data for
-    :returns: a dict (json) with hourly weather data
-    """
-    url = (
-        DARKSKY_URL
-        + str(coordinates['lat'])
-        + ','
-        + str(coordinates['lng'])
-        + '/?units=si&exclude=currently,minutely,daily,alerts,flags'
-    )
-    return get_json(url)
-
-
-def get_weather_data_daily(coordinates):
-    """
-    Return daily weather data
-    :param coordinates: The coordinates to get all weather data for
-    :returns: a dict (json) with daily weather data
-    """
-    url = (
-        DARKSKY_URL
-        + str(coordinates['lat'])
-        + ','
-        + str(coordinates['lng'])
-        + '/?units=si&exclude=currently,minutely,hourly,alerts,flags'
-    )
-    return get_json(url)
+    return get_weather_data(coordinates)
 
 
 def get_weather_data_current(coordinates):
+    # type: (dict) -> dict
     """
-    Return current weather data
+    Returns a dict (json), with current weather data for the specified coordinates
+
     :param coordinates: The coordinates to get all weather data for
     :returns: a dict (json) with current weather data
     """
-    url = (
-        DARKSKY_URL
-        + str(coordinates['lat'])
-        + ','
-        + str(coordinates['lng'])
-        + '/?units=si&exclude=minutely,hourly,daily,alerts,flags'
-    )
-    return get_json(url)
+    return get_weather_data(coordinates, include=['currently'])
 
 
-def get_weather_current(coordinates):
+def get_weather_data_minutely(coordinates):
+    # type: (dict) -> dict
     """
-    Return current weather summary
+    Returns a dict (json), with minutely weather data for the specified coordinates
+
+    :param coordinates: The coordinates to get minutely weather data for
+    :returns: a dict (json) with minutely weather data
+    """
+    return get_weather_data(coordinates, include=['minutely'])
+
+
+def get_weather_data_hourly(coordinates):
+    # type: (dict) -> dict
+    """
+    Returns a dict (json), with hourly weather data for the specified coordinates
+
+    :param coordinates: The coordinates to get hourly weather data for
+    :returns: a dict (json) with hourly weather data
+    """
+    return get_weather_data(coordinates, include=['hourly'])
+
+
+def get_weather_data_daily(coordinates):
+    # type: (dict) -> dict
+    """
+    Returns a dict (json), with daily weather data for the specified coordinates
+
+    :param coordinates: The coordinates to get daily weather data for
+    :returns: a dict (json) with daily weather data
+    """
+    return get_weather_data(coordinates, include=['daily'])
+
+
+def get_weather_summary_current(coordinates):
+    # type: (dict) -> str
+    """
+    Returns current weather summary
+
     :param coordinates: The coordinates to get current weather summary for
     :returns: a str summary  of the current weather located at coordinates
     """
@@ -151,9 +172,11 @@ def get_weather_current(coordinates):
     )
 
 
-def get_weather_no_date_time(coordinates):
+def get_weather_summary_no_date_time(coordinates):
+    # type: (dict) -> str
     """
-    Return weather summary for next few hours
+    Returns weather summary for the next few hours
+
     :param coordinates: The coordinates to get weather summary for
     :returns: a str summary  of the upcoming weather (next few hours) located at coordinates
     """
@@ -161,9 +184,11 @@ def get_weather_no_date_time(coordinates):
     return json_data['hourly']['summary']
 
 
-def get_weather_for_hour(coordinates, time_input):
+def get_weather_summary_for_hour(coordinates, time_input):
+    # type: (dict) -> str
     """
-    Return weather summary for a specific hour
+    Returns weather summary for the specific hour
+    
     :param coordinates: The coordinates to get weather summary for
     :param time_input: The specific hour to get weather summary for
     :returns: a str summary  of the upcoming weather at the specified hour located at coordinates
@@ -185,9 +210,11 @@ def get_weather_for_hour(coordinates, time_input):
     return response
 
 
-def get_weather_for_day(coordinates, time_input):
+def get_weather_summary_for_day(coordinates, time_input):
+    # type: (dict) -> str
     """
-    Return weather summary for an entire day
+    Returns weather summary for the entire day
+
     :param coordinates: The coordinates to get weather summary for
     :param time_input: The specific day to get weather summary for
     :returns: a str summary of the weather on the specified day located at coordinates
@@ -198,7 +225,6 @@ def get_weather_for_day(coordinates, time_input):
         time.mktime(time_input.timetuple()) - hour_offset + 3600
     )  # Convert ISO time to epoch time
     json_data = get_weather_data_daily(coordinates)
-    response = ''
     for i in range(15):
         try:
             if json_data['daily']['data'][i]['time'] == time_input:
@@ -225,9 +251,11 @@ def get_weather_for_day(coordinates, time_input):
             return 'weather.get_weather_for_day()_1'
 
 
-def get_weather_for_time_period(coordinates, date_time):
+def get_weather_summary_for_time_period(coordinates, date_time):
+    # type: (dict) -> str
     """
     Return weather summary for a a time period (around 4 hours)
+
     :param coordinates: The coordinates to get weather summary for
     :param date_time: The time period to get weather summary for
     :returns: a str summary of the weather for the specified date_time located at coordinates
@@ -252,10 +280,10 @@ def get_weather_for_time_period(coordinates, date_time):
 def weather(date_time, location):
     """
     Return weather summary for date_time
+
     :param date_time: The time to get the weather for
     :param location: The location to get the weather for
     """
-    response = ''
     coordinates = get_coordinates(location)
 
     if date_time != '':
@@ -265,7 +293,7 @@ def weather(date_time, location):
             # Get the weather forecast for the whole day
             # 2014-08-09
             # works
-            response = get_weather_for_day(coordinates, date_time)
+            response = get_weather_summary_for_day(coordinates, date_time)
 
         elif date_time_len == 41:
             # Get weather forecast for date-time period
@@ -278,7 +306,7 @@ def weather(date_time, location):
 
             date_time = date_time[:11] + str(average_hour) + ':00:00Z'
 
-            response = get_weather_for_time_period(coordinates, date_time)
+            response = get_weather_summary_for_time_period(coordinates, date_time)
 
         elif date_time_len == 8:
             # Get the weather forecast for a specific hour today
@@ -286,13 +314,13 @@ def weather(date_time, location):
             # works
             current_time = datetime.datetime.now().isoformat()
             date_time = current_time[:11] + date_time
-            response = get_weather_for_hour(coordinates, date_time)
+            response = get_weather_summary_for_hour(coordinates, date_time)
 
         elif date_time_len == 20:
             # Get the weather forecast for a specific hour for some day
             # 2014-08-09T16:00:00Z
             # kind of works
-            response = get_weather_for_hour(coordinates, date_time)
+            response = get_weather_summary_for_hour(coordinates, date_time)
 
         elif date_time_len == 17:
             # 13:00:00/14:00:00
@@ -302,14 +330,14 @@ def weather(date_time, location):
                 average_hour = '0' + str(average_hour)
             current_time = datetime.datetime.now().isoformat()
             date_time = current_time[:11] + str(average_hour) + ':00:00'
-            response = get_weather_for_hour(coordinates, date_time)
+            response = get_weather_summary_for_hour(coordinates, date_time)
         else:
             return 'Could not resolve date-time type'
 
     else:
-        return get_weather_no_date_time(coordinates)
+        return get_weather_summary_no_date_time(coordinates)
 
-    if response == '':
+    if not response:
         return 'weather.weather()_2'
 
     return str(response)

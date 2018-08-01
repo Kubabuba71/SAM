@@ -50,12 +50,12 @@ class WeatherActionHandler(ActionHandler):
     def _parse_parameters(self):
         date_time = self.parameters.get('date-time')
         location = self.parameters['location']
-        print('parameters[location]: {}'.format(location))
         if isinstance(location, dict):
             location = location['city']
         return date_time, location
 
-    def _create_res(self, date_time, location, action=None):
+    @staticmethod
+    def _create_res(date_time, location, action=None):
         """
         Generate a response for a generic weather request
         :param date_time: The time for the weather

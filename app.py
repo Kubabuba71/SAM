@@ -18,7 +18,6 @@ def hello():
 def test_weather():
     with open('sample_weather_response.json') as json_data:
         sample_weather_response = json.load(json_data)
-        # print(sample_weather_response)
     request_handler = RequestHandler(sample_weather_response)
     json_res = request_handler.handle_request()
     res = make_response(json_res)
