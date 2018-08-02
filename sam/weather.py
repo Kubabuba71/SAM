@@ -165,12 +165,10 @@ def get_weather_summary_current(coordinates):
     :returns: a str summary  of the current weather located at coordinates
     """
     json_data = get_weather_data_current(coordinates)
-    return (
-        json_data['currently']['summary']
-        + ' with a temperature of '
-        + json_data['currently']['apparentTemperature']
-        + ' celsius.'
-    )
+    summary = json_data['currently']['summary']
+    temperature = json_data['currently']['apparentTemperature']
+    result = '{}{}{}{}'.format(summary, ' with a temperature of ', temperature, ' celsius.')
+    return result
 
 
 def get_weather_summary_no_date_time(coordinates):
@@ -201,12 +199,8 @@ def get_weather_summary_for_hour(coordinates, time_input):
     response = ''
     for i in json_data['hourly']['data']:
         if i['time'] == time_input:
-            response = (
-                i['summary']
-                + ' with a temperature of '
-                + str(int(round(i['apparentTemperature'])))
-                + ' degrees Celsius.'
-            )
+            response = '{}{}{}{}'.format(i['summary'], ' with a temperature of ',
+                                         str(int(round(i['apparentTemperature']))), ' degrees Celsius.')
             break
     return response
 
@@ -289,6 +283,7 @@ def weather(date_time, location):
 
     if date_time != '':
         date_time_len = len(date_time)
+        print('length of datetime: {}\n'.format(date_time_len))
 
         if date_time_len == 10:
             # Get the weather forecast for the whole day
