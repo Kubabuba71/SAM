@@ -1,7 +1,7 @@
 {
-  "responseId": "4a04f99c-3971-49cd-8a55-93207ab12bed",
+  "responseId": "3b0a3f80-e5bd-44c1-acec-c6bc0da88216",
   "queryResult": {
-    "queryText": "Whats the weather this afternoon/",
+    "queryText": "Whats the weather this afternoon?",
     "action": "weather",
     "parameters": {
       "date-time": {
@@ -26,7 +26,7 @@
         "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
         "lifespanCount": 2,
         "parameters": {
-          "date-time.original": "this afternoon/",
+          "date-time.original": "this afternoon?",
           "location.original": "",
           "date-time": {
             "startDateTime": "2018-08-02T12:00:00+02:00",

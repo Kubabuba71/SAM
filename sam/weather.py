@@ -236,7 +236,7 @@ def weather(date_time, location):
         if average_hour <= 9:
             average_hour = '0{}'.format(average_hour)
         date_time = end_date_time[:11] + str(average_hour) + ':00:00Z'
-
+        print('date_time:{}'.format(date_time))
         response = get_weather_summary_for_time_period(date_time, coordinates)
 
     elif date_time_len == 10:

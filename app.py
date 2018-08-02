@@ -31,13 +31,13 @@ def run_sample(sample):
         json_path = 'sample_dialogflow_requests/{}.json'.format(sample)
         with open(json_path) as json_data:
             sample_dialogflow_request = json.load(json_data)
-    except IOError as e:
+        request_handler = RequestHandler(sample_dialogflow_request)
+        json_res = request_handler.handle_request()
+        res = make_response(json_res)
+        res.headers['Content-Type'] = 'application/json'
+        return res
+    except Exception as e:
         return make_response(str(e))
-    request_handler = RequestHandler(sample_dialogflow_request)
-    json_res = request_handler.handle_request()
-    res = make_response(json_res)
-    res.headers['Content-Type'] = 'application/json'
-    return res
 
 
 @app.route("/dialogflow_webhook", methods=['POST'])
