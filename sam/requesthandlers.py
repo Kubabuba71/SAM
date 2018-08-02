@@ -12,7 +12,7 @@ class RequestHandler:
         # self.parameters = self.req.get("result").get("parameters")
         self.parameters = self.req.get('queryResult').get('parameters')
         # self.contexts = self.req.get("result").get("contexts")
-        self.contexts = self.req.get('outputContexts')
+        self.contexts = self.req.get('queryResult').get('outputContexts')
         self.res = None
 
     def handle_request(self):

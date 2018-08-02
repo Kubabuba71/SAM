@@ -4,7 +4,7 @@ from .weather import weather
 class ActionHandler:
     """
     A meta-class that is handles the various action types
-    Each action type has its own specific functionality, which is encapture in execute_action
+    Each action type has its own specific functionality, which is captured in the execute_action function
     """
     def __init__(self, action, parameters, contexts):
         self.action = action
@@ -38,10 +38,10 @@ class WeatherActionHandler(ActionHandler):
         return response
 
     def _parse_contexts(self):
-        for i in range(15):
-            if self.contexts[i]['name'] == 'weather':
-                date_time = self.contexts[i]['parameters']['date-time']
-                location = self.contexts[i]['parameters']['location']
+        for context in self.contexts:
+            if context['name'].endswith('weather'):
+                date_time = context['parameters']['date-time']
+                location = context['parameters']['location']
                 if isinstance(location, dict):
                     location = location['city']
                 break

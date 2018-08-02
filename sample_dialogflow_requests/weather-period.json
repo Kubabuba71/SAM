@@ -1,0 +1,50 @@
+{
+  "responseId": "4a04f99c-3971-49cd-8a55-93207ab12bed",
+  "queryResult": {
+    "queryText": "Whats the weather this afternoon/",
+    "action": "weather",
+    "parameters": {
+      "date-time": {
+        "startDateTime": "2018-08-02T12:00:00+02:00",
+        "endDateTime": "2018-08-02T16:00:00+02:00"
+      },
+      "location": "Amsterdam"
+    },
+    "allRequiredParamsPresent": true,
+    "fulfillmentText": "Error, service unavailable.",
+    "fulfillmentMessages": [
+      {
+        "text": {
+          "text": [
+            "Error, service unavailable."
+          ]
+        }
+      }
+    ],
+    "outputContexts": [
+      {
+        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
+        "lifespanCount": 2,
+        "parameters": {
+          "date-time.original": "this afternoon/",
+          "location.original": "",
+          "date-time": {
+            "startDateTime": "2018-08-02T12:00:00+02:00",
+            "endDateTime": "2018-08-02T16:00:00+02:00"
+          },
+          "location": "Amsterdam"
+        }
+      }
+    ],
+    "intent": {
+      "name": "projects/sam-rxjabc/agent/intents/83519d74-f6ba-4bfa-ae54-1ff8d936abf0",
+      "displayName": "weather"
+    },
+    "intentDetectionConfidence": 1,
+    "languageCode": "en"
+  },
+  "originalDetectIntentRequest": {
+    "payload": {}
+  },
+  "session": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878"
+}

@@ -1,0 +1,49 @@
+{
+  "responseId": "ac73cea6-36d0-41e3-acb2-61240be903f3",
+  "queryResult": {
+    "queryText": "What about amsterdam?",
+    "action": "weather.followup.location",
+    "parameters": {
+      "location": {
+        "city": "Amsterdam"
+      }
+    },
+    "allRequiredParamsPresent": true,
+    "fulfillmentText": "Error, service unavailable.",
+    "fulfillmentMessages": [
+      {
+        "text": {
+          "text": [
+            "Error, service unavailable."
+          ]
+        }
+      }
+    ],
+    "outputContexts": [
+      {
+        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
+        "lifespanCount": 2,
+        "parameters": {
+          "date-time.original": "",
+          "location.original": "amsterdam?",
+          "date-time": "",
+          "location": {
+            "city": "Amsterdam",
+            "city.original": "amsterdam?",
+            "city.object": {}
+          }
+        }
+      }
+    ],
+    "intent": {
+      "name": "projects/sam-rxjabc/agent/intents/a99d2eca-2568-47de-84b1-314241924efa",
+      "displayName": "weather - context:weather - comment:location"
+    },
+    "intentDetectionConfidence": 1,
+    "languageCode": "en"
+  },
+  "originalDetectIntentRequest": {
+    "payload": {}
+  },
+  "session": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878"
+}

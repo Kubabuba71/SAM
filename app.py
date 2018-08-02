@@ -14,11 +14,26 @@ def hello():
     return "All is well and good with SAM!\n"
 
 
-@app.route("/test_weather")
-def test_weather():
-    with open('sample_weather_response.json') as json_data:
-        sample_weather_response = json.load(json_data)
-    request_handler = RequestHandler(sample_weather_response)
+# @app.route("/test_weather")
+# def test_weather():
+#     with open('sample_weather_response.json') as json_data:
+#         sample_weather_response = json.load(json_data)
+#     request_handler = RequestHandler(sample_weather_response)
+#     json_res = request_handler.handle_request()
+#     res = make_response(json_res)
+#     res.headers['Content-Type'] = 'application/json'
+#     return res
+
+
+@app.route('/run_sample/<sample>')
+def run_sample(sample):
+    try:
+        json_path = 'sample_dialogflow_requests/{}.json'.format(sample)
+        with open(json_path) as json_data:
+            sample_dialogflow_request = json.load(json_data)
+    except IOError as e:
+        return make_response(str(e))
+    request_handler = RequestHandler(sample_dialogflow_request)
     json_res = request_handler.handle_request()
     res = make_response(json_res)
     res.headers['Content-Type'] = 'application/json'
@@ -41,4 +56,4 @@ def webhook():
 if __name__ == "__main__":
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
