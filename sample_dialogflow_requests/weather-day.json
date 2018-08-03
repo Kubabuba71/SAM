@@ -1,14 +1,11 @@
 {
-  "responseId": "423bcd28-d0b2-4353-a6ef-1a7669d4a70b",
+  "responseId": "6220af08-4296-4e04-b2d0-a9541bf88d73",
   "queryResult": {
-    "queryText": "Whats the weather tomorrow afternoon?",
+    "queryText": "Whats the weather tomorrow?",
     "action": "weather",
     "parameters": {
-      "location": "Amsterdam",
-      "date-time": {
-        "endDateTime": "2018-08-04T16:00:00+02:00",
-        "startDateTime": "2018-08-04T12:00:00+02:00"
-      }
+      "date-time": "2018-08-04T12:00:00+02:00",
+      "location": "Amsterdam"
     },
     "allRequiredParamsPresent": true,
     "fulfillmentText": "Error, service unavailable.",
@@ -26,13 +23,10 @@
         "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
         "lifespanCount": 2,
         "parameters": {
+          "date-time.original": "tomorrow?",
           "location.original": "",
-          "date-time.original": "tomorrow afternoon?",
-          "location": "Amsterdam",
-          "date-time": {
-            "startDateTime": "2018-08-04T12:00:00+02:00",
-            "endDateTime": "2018-08-04T16:00:00+02:00"
-          }
+          "date-time": "2018-08-04T12:00:00+02:00",
+          "location": "Amsterdam"
         }
       }
     ],
@@ -41,13 +35,10 @@
       "displayName": "weather"
     },
     "intentDetectionConfidence": 1,
-    "diagnosticInfo": {
-      "webhook_latency_ms": 5121
-    },
     "languageCode": "en"
   },
-  "webhookStatus": {
-    "code": 4,
-    "message": "Webhook call failed. Error: Request timeout."
-  }
+  "originalDetectIntentRequest": {
+    "payload": {}
+  },
+  "session": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878"
 }

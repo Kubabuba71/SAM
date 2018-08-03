@@ -5,6 +5,7 @@ import json
 from flask import Flask, request, make_response
 
 from sam.requesthandlers import RequestHandler
+from sam.weather import get_coordinates, get_offset_from_utc
 
 app = Flask(__name__)
 
@@ -36,8 +37,10 @@ def run_sample(sample):
         res = make_response(json_res)
         res.headers['Content-Type'] = 'application/json'
         return res
-    except Exception as e:
-        return make_response(str(e))
+    except IOError as e:
+        return make_response(e)
+    # except Exception as e:
+    #     return make_response(str(e))
 
 
 @app.route("/dialogflow_webhook", methods=['POST'])
@@ -53,7 +56,22 @@ def webhook():
     return res
 
 
+@app.route('/test_something/<location>')
+def test_something(location):
+    """
+    A random test for some functionality
+    """
+    coordinates = get_coordinates(location)
+    offset = get_offset_from_utc(coordinates)
+    result = {'location': location,
+              'coords': coordinates,
+              'offset': offset}
+    res = make_response(json.dumps(result))
+    res.headers['Content-Type'] = 'application/json'
+    return res
+
+
 if __name__ == "__main__":
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
