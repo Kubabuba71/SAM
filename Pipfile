@@ -6,11 +6,10 @@ name = "pypi"
 [dev-packages]
 
 [packages]
-flask = "*"
-requests = "*"
-"iso8601" = "*"
-gunicorn = "*"
-python-dateutil = "*"
+cachecontrol = "==0.12.5"
+flask = "==1.0.2"
+gunicorn = "==19.9.0"
+python-dateutil = "==2.7.3"
 
 [requires]
 python_version = "3.6.6"

@@ -1,44 +1,25 @@
 {
-  "responseId": "6220af08-4296-4e04-b2d0-a9541bf88d73",
   "queryResult": {
-    "queryText": "Whats the weather tomorrow?",
     "action": "weather",
     "parameters": {
-      "date-time": "2018-08-04T12:00:00+02:00",
-      "location": "Amsterdam"
+      "date-time": "",
+      "location": "Amsterdam",
+      "date": "2018-08-10T01:21:55+02:00"
     },
-    "allRequiredParamsPresent": true,
-    "fulfillmentText": "Error, service unavailable.",
-    "fulfillmentMessages": [
-      {
-        "text": {
-          "text": [
-            "Error, service unavailable."
-          ]
-        }
-      }
-    ],
     "outputContexts": [
       {
-        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
-        "lifespanCount": 2,
+        "name": "weather",
         "parameters": {
-          "date-time.original": "tomorrow?",
+          "date": "2018-08-10T01:21:55+02:00",
+          "date-time.original": "",
           "location.original": "",
-          "date-time": "2018-08-04T12:00:00+02:00",
+          "date.original": "on friday?",
+          "date-time": "",
           "location": "Amsterdam"
         }
       }
-    ],
-    "intent": {
-      "name": "projects/sam-rxjabc/agent/intents/83519d74-f6ba-4bfa-ae54-1ff8d936abf0",
-      "displayName": "weather"
-    },
-    "intentDetectionConfidence": 1,
-    "languageCode": "en"
+    ]
   },
-  "originalDetectIntentRequest": {
-    "payload": {}
-  },
-  "session": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878"
+  "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified day, for the specified location",
+  "purposeShort": "weather for day for location"
 }

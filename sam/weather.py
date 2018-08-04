@@ -1,17 +1,22 @@
 """
 Return various weather forecast, using ISO-8601 datetime format
 """
+from copy import deepcopy
 from datetime import datetime
 from dateutil import parser as date_parser
-import time
+import json
+
 import requests
-from copy import deepcopy
+from cachecontrol import CacheControl
 
 
 from .constants import (DARK_SKY_URL, GOOGLE_MAPS_TIMEZONE_URL, GOOGLE_MAPS_GEOCODE_URL,
                         DARK_SKY_KEY, GOOGLE_MAPS_TIMEZONE_KEY, GOOGLE_MAPS_GEOCODE_KEY)
 
 WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'flags']
+
+sess = requests.session()
+cached_sess = CacheControl(sess)
 
 
 def get_datetime_from_string(datetime_str):
@@ -35,7 +40,7 @@ def get_offset_from_utc(coordinates):
     :return: the offset, in seconds, that coordinates has from utc time
     """
 
-    current_epoch_time = time.time()
+    current_epoch_time = datetime.utcnow().timestamp()
     lat = coordinates['lat']
     lng = coordinates['lng']
     location_param = '{},{}'.format(lat, lng)
@@ -57,9 +62,11 @@ def get_json(url, params=None):
     :returns: dict that contains the json from the url location
     """
     if params is None:
-        r = requests.get(url)
+        # r = requests.get(url)
+        r = cached_sess.get(url)
     else:
-        r = requests.get(url, params=params)
+        # r = requests.get(url, params=params)
+        r = cached_sess.get(url, params=params)
     return r.json()
 
 
@@ -188,9 +195,12 @@ def get_weather_summary_for_day(datetime_, coordinates):
     new_datetime = datetime(
         datetime_.year,
         datetime_.month,
-        datetime_.day)
+        datetime_.day
+
+    )
     timestamp = new_datetime.timestamp()
     json_data = get_weather_data(coordinates, include=['daily'])
+
     for entry in json_data['daily']['data']:
         try:
             if entry['time'] == timestamp:
@@ -201,21 +211,14 @@ def get_weather_summary_for_day(datetime_, coordinates):
 
 
 def get_weather_summary_for_time_period(datetime_, coordinates):
-    # type: (dict, str) -> str
+    # type: (datetime, dict) -> str
     """
     Return weather summary for a a time period (around 4 hours)
 
     :param datetime_: The time to get weather summary for
-    :type datetime_: datetime
     :param coordinates: dict containing the lat and lng keys (and their respective values)
-    :type coordinates: datetime
     :returns: a str summary of the weather for the specified datetime_ located at coordinates
     """
-    # new_datetime_ = datetime(
-    #     datetime_.year,
-    #     datetime_.month,
-    #     datetime_.day
-    # )
     timestamp = datetime_.timestamp()
     json_data = get_weather_data(coordinates, include=['hourly'])
     for i in json_data['hourly']['data']:
@@ -225,81 +228,65 @@ def get_weather_summary_for_time_period(datetime_, coordinates):
             return response
 
 
-def weather(datetime_, location):
-    # type: (Union[str, dict], str) -> str
+def weather(datetime_, date_, location):
+    # type: (Optional(str), Optional(str), Union[str, dict]) -> str
     """
     Return weather summary for datetime_
 
-    :param datetime_: The time to get the weather for
+    :param datetime_: The time to get the weather for - used to infer the hour
+    :param date_: The day to get the weather for - used to infer the day
     :param location: The location to get the weather for
     :returns: the generated response, based on datetime_ and location
     """
     coordinates = get_coordinates(location)
-    datetime_len = len(datetime_)
 
-    if isinstance(datetime_, dict):
-        start_hour = date_parser.parse(datetime_['startDateTime']).hour
-        end_hour = date_parser.parse(datetime_['endDateTime']).hour
+    if datetime_:
+        # Get weather for specific datetime (day and hour)
+        if isinstance(datetime_, dict):
+            # Assume that the request is for a period of time, with a start and end
+            # We simply take the point in time that is between the start and end,
+            # and return the weather for that time
+            start_hour = date_parser.parse(datetime_['startDateTime']).hour
+            end_hour = date_parser.parse(datetime_['endDateTime']).hour
 
-        average_hour = int((start_hour + end_hour) / 2)
+            average_hour = int((start_hour + end_hour) / 2)
 
-        if average_hour < 0 or average_hour > 24:
-            return "Error, average_hour has been calculated as invalid"
-        if average_hour <= 9:
-            average_hour = '0{}'.format(average_hour)
-
-        new_str = ''.join([
-            datetime_['startDateTime'][:11],
-            str(average_hour),
-            datetime_['startDateTime'][13:]
-        ])
-
-        new_datetime_ = date_parser.parse(new_str)
-
-        print('new_datetime_:{}'.format(new_datetime_))
-        response = get_weather_summary_for_time_period(new_datetime_, coordinates)
-
-    else:
-        datetime_object = date_parser.parse(datetime_)
-        if datetime_len == 10:
-            # Get the weather forecast for the whole day
-            # 2014-08-09
-            # works
-            response = get_weather_summary_for_day(datetime_object, coordinates)
-
-        elif datetime_len == 8:
-            # Get the weather forecast for a specific hour today
-            # 16:00:00
-            # works
-            current_time = datetime.now().isoformat()
-            datetime_ = current_time[:11] + datetime_
-            response = get_weather_summary_for_hour(datetime_, coordinates)
-
-        elif datetime_ == 20:
-            # Get the weather forecast for a specific hour for some day
-            # 2014-08-09T16:00:00Z
-            # kind of works
-            response = get_weather_summary_for_hour(datetime_object, coordinates)
-
-        elif datetime_len == 17:
-            # 13:00:00/14:00:00
-            # works
-            average_hour = (int(datetime_[:2]) + int(datetime_[9:11])) / 2
+            if average_hour < 0 or average_hour > 24:
+                return "Error, average_hour has been calculated as invalid"
             if average_hour <= 9:
-                average_hour = '0' + str(average_hour)
-            current_time = datetime.now().isoformat()
-            datetime_object = current_time[:11] + str(average_hour) + ':00:00'
-            response = get_weather_summary_for_hour(datetime_object, coordinates)
+                average_hour = '0{}'.format(average_hour)
 
-        elif datetime_len == 25:
-            # 2018-08-04T12:00:00+02:00
-            response = get_weather_summary_for_day(datetime_object, coordinates)
-            pass
+            new_str = '{}{}{}'.format(datetime_['startDateTime'][:11],
+                                      str(average_hour), datetime_['startDateTime'][13:])
+
+            datetime_object = date_parser.parse(new_str)
+
+            response = get_weather_summary_for_time_period(datetime_object, coordinates)
 
         else:
-            return get_weather_summary_no_datetime(coordinates)
+            datetime_object = date_parser.parse(datetime_)
 
-    if not response:
-        return 'weather.weather()_2'
+            if len(datetime_) == 25:
+                # 2018-08-04T12:00:00+02:00
+                response = get_weather_summary_for_day(datetime_object, coordinates)
+                pass
 
-    return str(response)
+            else:
+                return "ERROR: WEATHER DATE/DATETIME FORMAT IS INVALID"
+
+    elif date_:
+        # Get the weather for a specific date
+        datetime_object = date_parser.parse(date_)
+        response = get_weather_summary_for_day(datetime_object, coordinates)
+    else:
+        # Assume that the weather is for the current time
+        response = get_weather_summary_current(coordinates)
+        datetime_object = datetime.utcnow()
+
+    print('Returning weather information:\ndate: {}\ncoordinates: {}\nresponse: {}'
+          .format(str(datetime_object), json.dumps(coordinates), response))
+
+    if response:
+        return response
+    else:
+        return str(None)

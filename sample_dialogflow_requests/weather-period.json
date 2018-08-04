@@ -1,7 +1,5 @@
 {
-  "responseId": "423bcd28-d0b2-4353-a6ef-1a7669d4a70b",
   "queryResult": {
-    "queryText": "Whats the weather tomorrow afternoon?",
     "action": "weather",
     "parameters": {
       "location": "Amsterdam",
@@ -10,21 +8,9 @@
         "startDateTime": "2018-08-04T12:00:00+02:00"
       }
     },
-    "allRequiredParamsPresent": true,
-    "fulfillmentText": "Error, service unavailable.",
-    "fulfillmentMessages": [
-      {
-        "text": {
-          "text": [
-            "Error, service unavailable."
-          ]
-        }
-      }
-    ],
     "outputContexts": [
       {
-        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/weather",
-        "lifespanCount": 2,
+        "name": "weather",
         "parameters": {
           "location.original": "",
           "date-time.original": "tomorrow afternoon?",
@@ -35,19 +21,8 @@
           }
         }
       }
-    ],
-    "intent": {
-      "name": "projects/sam-rxjabc/agent/intents/83519d74-f6ba-4bfa-ae54-1ff8d936abf0",
-      "displayName": "weather"
-    },
-    "intentDetectionConfidence": 1,
-    "diagnosticInfo": {
-      "webhook_latency_ms": 5121
-    },
-    "languageCode": "en"
+    ]
   },
-  "webhookStatus": {
-    "code": 4,
-    "message": "Webhook call failed. Error: Request timeout."
-  }
+  "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified location, over a period of time",
+  "purposeShort": "weather for period for location"
 }

@@ -33,6 +33,5 @@ class RequestHandler:
 
         result = self.action_handler.execute_action()
         # self.res = json.dumps({'speech': result}, indent=4)
-        self. res = json.dumps({'fulfillmentText': result}, indent=4)
-        print('Returning the following response:\n{}\n'.format(self.res))
+        self. res = {'fulfillmentText': result}
         return self.res
