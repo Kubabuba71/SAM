@@ -13,14 +13,12 @@ from sam.weather import get_coordinates, get_offset_from_utc
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 
-client_id = os.environ.get('SPOTIFY_CLIENT_ID')
-client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
+spotify_client_id = os.environ.get('SPOTIFY_CLIENT_ID')
+spotify_client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
 spotify_authorization_url = os.environ.get('SPOTIFY_AUTHORIZATION_URL')
 spotify_redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
-
-scope = ['user-read-playback-state']
-
-token_url = 'https://accounts.spotify.com/api/token'
+spotify_scope = ['user-read-playback-state']
+spotify_token_url = 'https://accounts.spotify.com/api/token'
 
 
 @app.route("/")
@@ -95,7 +93,10 @@ def test_all():
 
 @app.route("/login")
 def login():
-    spotify = OAuth2Session(client_id, redirect_uri=spotify_redirect_uri, scope=scope)
+    """
+    Generic authorization request for the Spotify API
+    """
+    spotify = OAuth2Session(spotify_client_id, redirect_uri=spotify_redirect_uri, scope=spotify_scope)
     authorization_url, state = spotify.authorization_url(spotify_authorization_url)
 
     # State is used to prevent CSRF, keep this for later.
@@ -105,14 +106,45 @@ def login():
 
 @app.route("/callback")
 def callback():
-    spotify = OAuth2Session(client_id, state=session['oauth_state'], redirect_uri=spotify_redirect_uri, scope=scope)
-    token = spotify.fetch_token(token_url, client_secret=client_secret,
-                                authorization_response=request.url)
+    """
+    Generic authorization callback for the Spotify API
+    """
+    spotify_oauth2_session = OAuth2Session(spotify_client_id, state=session['oauth_state'],
+                                           redirect_uri=spotify_redirect_uri, scope=spotify_scope)
+    token = spotify_oauth2_session.fetch_token(spotify_token_url, client_secret=spotify_client_secret,
+                                               authorization_response=request.url)
 
-    return jsonify(spotify.get('https://api.spotify.com/v1/me/player').json())
+    return jsonify(spotify_oauth2_session.get('https://api.spotify.com/v1/me/player').json())
+
+
+@app.route("/current_song")
+def current_song():
+    """
+    Return current Spotify playback information
+    """
+    spotify_oauth2_session = OAuth2Session(spotify_client_id, redirect_uri=spotify_redirect_uri, scope=spotify_scope)
+    authorization_url, state = spotify_oauth2_session.authorization_url(spotify_authorization_url)
+    session['oauth_state'] = state
+    print('Spotify Authorization URL:\n{}\n'.format(authorization_url))
+    return redirect(authorization_url)
+
+
+@app.route("/current_song_callback")
+def current_song_callback():
+    """
+    Authorization callback for current Spotify playback information
+    """
+    spotify_oauth2_session = OAuth2Session(spotify_client_id, state=session['oauth_state'],
+                                           redirect_uri=spotify_redirect_uri, scope=spotify_scope)
+    token = spotify_oauth2_session.fetch_token(spotify_token_url, client_secret=spotify_client_secret,
+                                               authorization_response=request.url)
+
+    return jsonify(spotify_oauth2_session.get('https://api.spotify.com/v1/me/player/currently-playing').json())
 
 
 if __name__ == "__main__":
     # Bind to PORT if defined, otherwise default to 5000.
+    # When running locally, run on port 5000
+    # When running on heroku (or a similar service), run on the provided port
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
