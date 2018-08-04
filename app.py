@@ -2,12 +2,25 @@ import os
 
 import json
 
-from flask import Flask, request, make_response
+from flask import Flask, request, redirect, session, make_response
+from flask.json import jsonify
+
+from requests_oauthlib import OAuth2Session
 
 from sam.requesthandlers import RequestHandler
 from sam.weather import get_coordinates, get_offset_from_utc
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY')
+
+client_id = os.environ.get('SPOTIFY_CLIENT_ID')
+client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
+spotify_authorization_url = os.environ.get('SPOTIFY_AUTHORIZATION_URL')
+spotify_redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
+
+scope = ['user-read-playback-state']
+
+token_url = 'https://accounts.spotify.com/api/token'
 
 
 @app.route("/")
@@ -78,6 +91,25 @@ def test_all():
     res = make_response(json.dumps(responses))
     res.headers['Content-Type'] = 'application/json'
     return res
+
+
+@app.route("/login")
+def login():
+    spotify = OAuth2Session(client_id, redirect_uri=spotify_redirect_uri, scope=scope)
+    authorization_url, state = spotify.authorization_url(spotify_authorization_url)
+
+    # State is used to prevent CSRF, keep this for later.
+    session['oauth_state'] = state
+    return redirect(authorization_url)
+
+
+@app.route("/callback")
+def callback():
+    spotify = OAuth2Session(client_id, state=session['oauth_state'], redirect_uri=spotify_redirect_uri, scope=scope)
+    token = spotify.fetch_token(token_url, client_secret=client_secret,
+                                authorization_response=request.url)
+
+    return jsonify(spotify.get('https://api.spotify.com/v1/me/player').json())
 
 
 if __name__ == "__main__":

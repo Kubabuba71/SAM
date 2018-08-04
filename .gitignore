@@ -107,3 +107,4 @@ venv.bak/
 .vscode
 wsgi.py
 .idea
+local_server.py
