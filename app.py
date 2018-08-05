@@ -1,24 +1,18 @@
 import os
-
 import json
 
-from flask import Flask, request, redirect, session, make_response
+from flask import Flask, request, make_response
 from flask.json import jsonify
 
-from requests_oauthlib import OAuth2Session
-
 from sam.requesthandlers import RequestHandler
-from sam.weather import get_coordinates, get_offset_from_utc
+from sam.OAuth2Session import OAuth2Session
+
+from requests_oauthlib import OAuth2Session as r_OAuth2Session
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 
-spotify_client_id = os.environ.get('SPOTIFY_CLIENT_ID')
-spotify_client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
-spotify_authorization_url = os.environ.get('SPOTIFY_AUTHORIZATION_URL')
-spotify_redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
-spotify_scope = ['user-read-playback-state']
-spotify_token_url = 'https://accounts.spotify.com/api/token'
+oauth2_session = OAuth2Session()
 
 
 @app.route("/")
@@ -42,7 +36,7 @@ def run_sample(sample):
 
 
 @app.route("/dialogflow_webhook", methods=['POST'])
-def webhook():
+def dialogflow_webhook():
     """
     Handle requests from dialogflow
     """
@@ -50,21 +44,6 @@ def webhook():
     request_handler = RequestHandler(req)
     res = request_handler.handle_request()
     res = make_response(json.dumps(res))
-    res.headers['Content-Type'] = 'application/json'
-    return res
-
-
-@app.route('/test_location/<location>')
-def test_something(location):
-    """
-    A random test for some functionality
-    """
-    coordinates = get_coordinates(location)
-    offset = get_offset_from_utc(coordinates)
-    result = {'location': location,
-              'coords': coordinates,
-              'offset': offset}
-    res = make_response(json.dumps(result))
     res.headers['Content-Type'] = 'application/json'
     return res
 
@@ -96,12 +75,9 @@ def login():
     """
     Generic authorization request for the Spotify API
     """
-    spotify = OAuth2Session(spotify_client_id, redirect_uri=spotify_redirect_uri, scope=spotify_scope)
-    authorization_url, state = spotify.authorization_url(spotify_authorization_url)
-
-    # State is used to prevent CSRF, keep this for later.
-    session['oauth_state'] = state
-    return redirect(authorization_url)
+    authorization_url, state = oauth2_session.authorization_url()
+    print('Authorization URL: {}'.format(authorization_url))
+    return 'authorization_url printed to console, go to it'
 
 
 @app.route("/callback")
@@ -109,12 +85,10 @@ def callback():
     """
     Generic authorization callback for the Spotify API
     """
-    spotify_oauth2_session = OAuth2Session(spotify_client_id, state=session['oauth_state'],
-                                           redirect_uri=spotify_redirect_uri, scope=spotify_scope)
-    token = spotify_oauth2_session.fetch_token(spotify_token_url, client_secret=spotify_client_secret,
-                                               authorization_response=request.url)
-
-    return jsonify(spotify_oauth2_session.get('https://api.spotify.com/v1/me/player').json())
+    # oauth2_session.authorization_response = request.url
+    # oauth2_session.refresh_token()
+    oauth2_session.fetch_token(request.url)
+    return 'Token has been fetched and saved'
 
 
 @app.route("/current_song")
@@ -122,24 +96,9 @@ def current_song():
     """
     Return current Spotify playback information
     """
-    spotify_oauth2_session = OAuth2Session(spotify_client_id, redirect_uri=spotify_redirect_uri, scope=spotify_scope)
-    authorization_url, state = spotify_oauth2_session.authorization_url(spotify_authorization_url)
-    session['oauth_state'] = state
-    print('Spotify Authorization URL:\n{}\n'.format(authorization_url))
-    return redirect(authorization_url)
+    res = oauth2_session.get('https://api.spotify.com/v1/me/player/currently-playing')
+    return jsonify(res.json())
 
-
-@app.route("/current_song_callback")
-def current_song_callback():
-    """
-    Authorization callback for current Spotify playback information
-    """
-    spotify_oauth2_session = OAuth2Session(spotify_client_id, state=session['oauth_state'],
-                                           redirect_uri=spotify_redirect_uri, scope=spotify_scope)
-    token = spotify_oauth2_session.fetch_token(spotify_token_url, client_secret=spotify_client_secret,
-                                               authorization_response=request.url)
-
-    return jsonify(spotify_oauth2_session.get('https://api.spotify.com/v1/me/player/currently-playing').json())
 
 
 if __name__ == "__main__":
