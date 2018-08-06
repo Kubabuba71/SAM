@@ -1,4 +1,5 @@
 from .weather import weather
+from .music import music
 
 
 class ActionHandler:
@@ -12,6 +13,10 @@ class ActionHandler:
         self.contexts = contexts
 
     def execute_action(self):
+        """
+        Execute the expected functionality of the specified action
+        Example: action == weather, return weather information, for the date passed in parameters/contexts
+        """
         pass
 
 
@@ -64,4 +69,30 @@ class WeatherActionHandler(ActionHandler):
         :param action: The dialogflow defined action (possible that it was modified)
         """
         res = weather(date_time, date_, location)
+        return res
+
+
+class MusicActionHandler(ActionHandler):
+    def __init__(self, action, parameters, contexts):
+        self.action = action
+        self.parameters = parameters
+        self.contexts = contexts
+        self.super_action, self.sub_action, self.specific_action = self.action.split('.')
+
+    def execute_action(self):
+        if self.sub_action == 'player_control':
+            res = self.player_control()
+        else:
+            res = 'Not implemented yet'
+        return res
+
+    def _parse_contexts(self):
+        pass
+
+    def _parse_parameters(self):
+        pass
+
+    def player_control(self):
+        if self.specific_action == 'current_song':
+            res = music()
         return res

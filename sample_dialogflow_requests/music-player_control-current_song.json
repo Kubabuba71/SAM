@@ -1,0 +1,18 @@
+{
+  "queryResult": {
+    "action": "music.player_control.current_song",
+    "parameters": {},
+    "outputContexts": [
+      {
+        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/music-player-control",
+        "lifespanCount": 3
+      },
+      {
+        "name": "projects/sam-rxjabc/agent/sessions/217e9332-7d72-7f2b-6635-a59004c7d878/contexts/music-current_song",
+        "lifespanCount": 2
+      }
+    ]
+  },
+  "purposeOfRequest": "The purpose of this request, is to retrieve the currently playing song on Spotify",
+  "purposeShort": "currently playing song"
+}

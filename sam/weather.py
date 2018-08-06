@@ -6,17 +6,45 @@ from datetime import datetime
 from dateutil import parser as date_parser
 import json
 
-import requests
-from cachecontrol import CacheControl
-
-
+from . import web_session
 from .constants import (DARK_SKY_URL, GOOGLE_MAPS_TIMEZONE_URL, GOOGLE_MAPS_GEOCODE_URL,
                         DARK_SKY_KEY, GOOGLE_MAPS_TIMEZONE_KEY, GOOGLE_MAPS_GEOCODE_KEY)
 
 WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'flags']
 
-sess = requests.session()
-cached_sess = CacheControl(sess)
+
+def generate_darksky_url(coordinates):
+    # type: (dict) -> str
+    """
+    Generate a dark_sky url with lat and lng
+
+    :param coordinates: dict containing the lat and lng keys (and their respective values)
+    :return: The generated dark_sky url, with lat and lng properly formatted and positioned
+    """
+    lat = coordinates['lat']
+    lng = coordinates['lng']
+    url = '{}{}/{},{}'.format(DARK_SKY_URL, DARK_SKY_KEY, lat, lng)
+    return url
+
+
+def get_coordinates(location):
+    # type: (str) -> dict
+    """
+    Returns a dict (json), with the coordinates for specified location
+
+    :param location: the location for which coordinates are to be parsed
+    :returns: dict that contains lat and lng
+    """
+    location = location.replace(' ', '+')
+    params = {
+        'address': location,
+        'key': GOOGLE_MAPS_GEOCODE_KEY
+    }
+    json_data = web_session.get_json(GOOGLE_MAPS_GEOCODE_URL, params=params)
+    coordinates = json_data['results'][0]['geometry']['location']
+    coordinates['lng'] = round(coordinates['lng'], 7)
+    coordinates['lat'] = round(coordinates['lat'], 7)
+    return coordinates
 
 
 def get_datetime_from_string(datetime_str):
@@ -49,39 +77,8 @@ def get_offset_from_utc(coordinates):
               'location': location_param,
               'timestamp': current_epoch_time}
 
-    json_data = get_json(GOOGLE_MAPS_TIMEZONE_URL, params=params)
+    json_data = web_session.get_json(GOOGLE_MAPS_TIMEZONE_URL, params=params)
     return json_data['dstOffset'] + json_data['rawOffset']
-
-
-def get_json(url, params=None):
-    # type: (str, Optional[dict[str]]) -> dict
-    """
-    Returns the json (represented as a dict) for specified url
-    :param url: the url that json should be retrieve from
-    :param params: optional parameters that can be used as URL parameters
-    :returns: dict that contains the json from the url location
-    """
-    if params is None:
-        # r = requests.get(url)
-        r = cached_sess.get(url)
-    else:
-        # r = requests.get(url, params=params)
-        r = cached_sess.get(url, params=params)
-    return r.json()
-
-
-def generate_darksky_url(coordinates):
-    # type: (dict) -> str
-    """
-    Generate a dark_sky url with lat and lng
-
-    :param coordinates: dict containing the lat and lng keys (and their respective values)
-    :return: The generated dark_sky url, with lat and lng properly formatted and positioned
-    """
-    lat = coordinates['lat']
-    lng = coordinates['lng']
-    url = '{}{}/{},{}'.format(DARK_SKY_URL, DARK_SKY_KEY, lat, lng)
-    return url
 
 
 def get_weather_data(coordinates, include=None):
@@ -102,7 +99,7 @@ def get_weather_data(coordinates, include=None):
         for param in include:
             weather_parameters.remove(param)
         params['exclude'] = ','.join(weather_parameters)
-    return get_json(url, params=params)
+    return web_session.get_json(url, params=params)
 
 
 def generate_summary(json_data, index=None):
@@ -114,26 +111,6 @@ def generate_summary(json_data, index=None):
         temperature = (json_data['apparentTemperatureMax'] + json_data['apparentTemperatureMin']) / 2
     result = '{} with a temperature of {} degrees celsius'.format(summary, str(round(temperature, 2)))
     return result
-
-
-def get_coordinates(location):
-    # type: (str) -> dict
-    """
-    Returns a dict (json), with the coordinates for specified location
-
-    :param location: the location for which coordinates are to be parsed
-    :returns: dict that contains lat and lng
-    """
-    location = location.replace(' ', '+')
-    params = {
-        'address': location,
-        'key': GOOGLE_MAPS_GEOCODE_KEY
-    }
-    json_data = get_json(GOOGLE_MAPS_GEOCODE_URL, params=params)
-    coordinates = json_data['results'][0]['geometry']['location']
-    coordinates['lng'] = round(coordinates['lng'], 7)
-    coordinates['lat'] = round(coordinates['lat'], 7)
-    return coordinates
 
 
 def get_weather_summary_current(coordinates):

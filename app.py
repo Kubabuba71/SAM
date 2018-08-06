@@ -5,14 +5,11 @@ from flask import Flask, request, make_response
 from flask.json import jsonify
 
 from sam.requesthandlers import RequestHandler
-from sam.OAuth2Session import OAuth2Session
-
-from requests_oauthlib import OAuth2Session as r_OAuth2Session
+import sam.spotify_api_wrapper as spotify_api_wrapper
+from sam.music import music
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
-
-oauth2_session = OAuth2Session()
 
 
 @app.route("/")
@@ -28,7 +25,7 @@ def run_sample(sample):
             sample_dialogflow_request = json.load(raw_json_data)
         request_handler = RequestHandler(sample_dialogflow_request)
         json_res = request_handler.handle_request()
-        res = make_response(json_res)
+        res = make_response(json.dumps(json_res))
         res.headers['Content-Type'] = 'application/json'
         return res
     except IOError as e:
@@ -42,8 +39,8 @@ def dialogflow_webhook():
     """
     req = request.get_json(silent=True, force=True)
     request_handler = RequestHandler(req)
-    res = request_handler.handle_request()
-    res = make_response(json.dumps(res))
+    json_res = json.dumps(request_handler.handle_request())
+    res = make_response(json_res)
     res.headers['Content-Type'] = 'application/json'
     return res
 
@@ -75,19 +72,18 @@ def login():
     """
     Generic authorization request for the Spotify API
     """
-    authorization_url, state = oauth2_session.authorization_url()
-    print('Authorization URL: {}'.format(authorization_url))
+    # authorization_url, state = oauth2_session.authorization_url()
+    # print('Authorization URL: {}'.format(authorization_url))
+    spotify_api_wrapper.login()
     return 'authorization_url printed to console, go to it'
 
 
-@app.route("/callback")
+@app.route("/spotify_callback")
 def callback():
     """
     Generic authorization callback for the Spotify API
     """
-    # oauth2_session.authorization_response = request.url
-    # oauth2_session.refresh_token()
-    oauth2_session.fetch_token(request.url)
+    spotify_api_wrapper.callback(request.url)
     return 'Token has been fetched and saved'
 
 
@@ -96,9 +92,20 @@ def current_song():
     """
     Return current Spotify playback information
     """
-    res = oauth2_session.get('https://api.spotify.com/v1/me/player/currently-playing')
+    res = spotify_api_wrapper.currently_playing()
     return jsonify(res.json())
 
+
+@app.route('/get_token_info')
+def get_token_info():
+    res = spotify_api_wrapper.token_info()
+    return jsonify(res)
+
+
+@app.route('/current_song_info')
+def current_song_info():
+    res = music()
+    return res
 
 
 if __name__ == "__main__":

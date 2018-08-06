@@ -1,6 +1,4 @@
-import json
-
-from .actionhandlers import WeatherActionHandler
+from .actionhandlers import WeatherActionHandler, MusicActionHandler
 
 
 class RequestHandler:
@@ -22,6 +20,7 @@ class RequestHandler:
         """
         if self.action.startswith("music."):
             # self.action_handler = MusicHandler()
+            self.action_handler = MusicActionHandler(self.action, self.parameters, self.contexts)
             pass
 
         elif self.action.startswith("calendar"):
@@ -31,7 +30,6 @@ class RequestHandler:
         elif self.action.startswith("weather"):
             self.action_handler = WeatherActionHandler(self.action, self.parameters, self.contexts)
 
-        result = self.action_handler.execute_action()
-        # self.res = json.dumps({'speech': result}, indent=4)
+        result = 'Not yet implemented' if self.action_handler is None else self.action_handler.execute_action()
         self. res = {'fulfillmentText': result}
         return self.res
