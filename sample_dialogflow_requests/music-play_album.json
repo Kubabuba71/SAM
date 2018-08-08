@@ -1,0 +1,16 @@
+{
+    "queryResult": {
+      "queryText": "Play Damn album",
+      "action": "music.play",
+      "parameters": {
+        "artist": "",
+        "album": "Damn",
+        "song": "",
+        "playlist": "",
+        "genre": "",
+        "sort": ""
+      }
+    },
+  "purposeOfRequest": "The purpose of this request, is to play the specified album",
+  "purposeShort": "Play specified album (Damn)"
+}

@@ -1,5 +1,5 @@
 from .weather import weather
-from .music import music
+from . import music
 
 
 class ActionHandler:
@@ -7,10 +7,6 @@ class ActionHandler:
     A meta-class that is handles the various action types
     Each action type has its own specific functionality, which is captured in the execute_action function
     """
-    def __init__(self, action, parameters, contexts):
-        self.action = action
-        self.parameters = parameters
-        self.contexts = contexts
 
     def execute_action(self):
         """
@@ -29,59 +25,99 @@ class WeatherActionHandler(ActionHandler):
         self.action = action
         self.parameters = parameters
         self.contexts = contexts
+        try:
+            self.super_action, self.sub_action, self.specific_action = self.action.split('.')
+        except ValueError:
+            try:
+                self.super_action, self.sub_action = self.action.split('.'), None
+            except ValueError:
+                self.super_action = self.action, None
 
     def execute_action(self):
-        action = self.action[8:]
-        if action.startswith("followup"):
-            action = self.action[9:]
-            date_time, date_, location = self._parse_contexts()
-            response = self._create_res(date_time, date_, location, action=action)
-        else:
-            date_time, date_, location = self._parse_parameters()
-            response = self._create_res(date_time, date_, location)
-        return response
+        res = None
+        if self.sub_action is not None:
+            if self.sub_action.startswith("followup"):
+                self._parse_contexts()
+                res = self._create_res()
+            else:
+                self._parse_parameters()
+                res = self._create_res()
+
+        return res or 'Weather action not implemented yet'
 
     def _parse_contexts(self):
         for context in self.contexts:
             if context['name'].endswith('weather'):
-                date_time = context['parameters'].get('date-time', None)
-                date_ = context['parameters'].get('date', None)
-                location = context['parameters'].get('location', None)
-                if isinstance(location, dict):
-                    location = location['city']
-                break
-        return date_time, date_, location
+                self.date_time = context['parameters'].get('date-time', None)
+                self.date_ = context['parameters'].get('date', None)
+                self.location = context['parameters'].get('location', None)
+                if isinstance(self.location, dict):
+                    self.location = self.location['city']
+                return
 
     def _parse_parameters(self):
-        date_time = self.parameters.get('date-time', None)
-        date_ = self.parameters.get('date', None)
-        location = self.parameters.get('location', None)
-        if isinstance(location, dict):
-            location = location['city']
-        return date_time, date_, location
+        self.date_time = self.parameters.get('date-time', None)
+        self.date_ = self.parameters.get('date', None)
+        self.location = self.parameters.get('location', None)
+        if isinstance(self.location, dict):
+            self.location = self.location['city']
 
-    @staticmethod
-    def _create_res(date_time, date_,  location, action=None):
+    def _create_res(self):
         """
         Generate a response for a generic weather request
-        :param date_time: The time for the weather
-        :param location: The location for the weather
-        :param action: The dialogflow defined action (possible that it was modified)
         """
-        res = weather(date_time, date_, location)
+        res = weather(self.date_time, self.date_, self.location)
         return res
 
 
-class MusicActionHandler(ActionHandler):
+class MusicActionHandler:
+    action = ''
+    parameters = ''
+    contexts = ''
+    super_action, sub_action, specific_action = '', '', ''
+
     def __init__(self, action, parameters, contexts):
         self.action = action
         self.parameters = parameters
         self.contexts = contexts
-        self.super_action, self.sub_action, self.specific_action = self.action.split('.')
+        my_list = []
+        for _ in self.action.split('.'):
+            my_list.append(_)
+        super_action = my_list[0]
+        self.super_action = super_action
+        try:
+            sub_action = my_list[1]
+            self.sub_action = sub_action
+        except IndexError:
+            sub_action = ''
+        try:
+            specific_action = my_list[2]
+            self.specific_action = specific_action
+        except IndexError:
+            specific_action = ''
 
     def execute_action(self):
-        if self.sub_action == 'player_control':
-            res = self.player_control()
+        # my_list = []
+        # for _ in self.action.split('.'):
+        #     my_list.append(_)
+        # super_action = my_list[0]
+        # self.super_action = super_action
+        # try:
+        #     sub_action = my_list[1]
+        #     self.sub_action = sub_action
+        # except IndexError:
+        #     sub_action = ''
+        # try:
+        #     specific_action = my_list[2]
+        #     self.specific_action = specific_action
+        # except IndexError:
+        #     specific_action = ''
+        self._parse_parameters()
+        if self.sub_action is not None:
+            if self.sub_action == 'player_control':
+                res = self.player_control()
+            elif self.sub_action == 'play':
+                res = self.play()
         else:
             res = 'Not implemented yet'
         return res
@@ -90,9 +126,29 @@ class MusicActionHandler(ActionHandler):
         pass
 
     def _parse_parameters(self):
+        self.artist = self.parameters.get('artist', None)
+        self.album = self.parameters.get('album', None)
+        self.song = self.parameters.get('song', None)
+        self.playlist = self.parameters.get('playlist', None)
+        self.sort = self.parameters.get('sort', None)
         pass
+
+    def play(self):
+        if self.artist:
+            res = music.play_artist(self.artist)
+        elif self.album:
+            res = music.play_album(self.album)
+        elif self.song:
+            res = music.play_song(self.song)
+        elif self.playlist:
+            res = music.play_playlist(self.playlist)
+        else:
+            res = 'Music action not implemented yet'
+        return res
 
     def player_control(self):
         if self.specific_action == 'current_song':
-            res = music()
+            res = music.music()
+        elif self.specific_action == 'skip_forward':
+            res = music.skip_forward()
         return res

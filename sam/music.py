@@ -3,102 +3,80 @@ from . import spotify_api_wrapper
 NOT_IMPLEMENTED = 'Not implemented yet!'
 
 
-def get_artist_uri(artist):
-    """
-    Return artist URI for artist
-    """
-    return NOT_IMPLEMENTED
-
-
-def get_album_uri(album):
-    """
-    Return album URI for album
-    """
-    return
-
-
-def get_song_uri(track):
-    """
-    Return song URI for some song(parameter)
-    """
-    return NOT_IMPLEMENTED
-
-
-def get_playlist_uri(playlist):
-    """
-    Return playlist uri for playlist
-    """
-    return NOT_IMPLEMENTED
-
-
-def play_artist(artist, device=''):
+def play_artist(artist, device=None):
     """
     Play artist
     """
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.play(artist, type_='artist')
+    return 'Playing {}'.format(artist)
 
 
-def play_album(album, device=''):
+def play_album(album, device=None):
     """
     Play album
     """
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.play(album, type_='album')
+    return 'Playing {}'.format(album)
 
 
-def play_playlist(playlist, device=''):
+def play_playlist(playlist, device=None):
     """
     Play playlist
     """
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.play(playlist, type_='playlist')
+    return 'Playing {}'.format(playlist)
 
 
 def play_song_of_artist(song, artist):
     """
     Play song of some artist
     """
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.play([song, artist], type_='song_artist')
+    return 'Playing {} by {}'.format(song, artist)
 
 
 def play_song(song):
     """
     Play song(parameter) on spotify
     """
-    return NOT_IMPLEMENTED
-
-
-def search_song_data(song):
-    """
-    Retrieve spotify data for some song
-    """
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.play(song, type_='track')
+    return 'Playing {}'.format(song)
 
 
 def play_artist_on_device(artist, device):
     """
     Play specific artist on specific device
     """
-    return NOT_IMPLEMENTED
+    # spotify_api_wrapper.play(artist, type_='artist', device=device)
+    # return 'Playing {} on {}'.format(artist, device)
+    return NotImplemented
 
 
 def play_album_on_device(album, device):
     """
     Play specified album on specified device
     """
-    return NOT_IMPLEMENTED
+    # spotify_api_wrapper.play(album, type_='album', device=device)
+    # return 'Playing {} on {}'.format(album, device)
+    return NotImplemented
 
 
 def play_playlist_on_device(playlist, device):
     """
     Play specified playlist on specified device
     """
-    return NOT_IMPLEMENTED
+    # spotify_api_wrapper.play(playlist, type_='playlist', device=device)
+    # return 'Playing {} on {}'.format(playlist, device)
+    return NotImplemented
 
 
 def add_current_song_to_playlist(playlist):
     """
     Adds currently playing song to specified playlist
     """
-    return NOT_IMPLEMENTED
+    # spotify_api_wrapper.add_to_playlist(playlist)
+    # return 'Added current song to the {} playlist'.format(playlist)
+    return NotImplemented
 
 
 def get_playlist_tracks(playlist_id):
@@ -157,25 +135,27 @@ def pause(device_id=''):
     return NOT_IMPLEMENTED
 
 
-def unpause(uri=''):
+def unpause(uri=None):
     """
     Unpause
     """
     return 'Unpaused music'
 
 
-def unpause_on_device(music_thing, uri='', input_device='kuba-pc'):
+def unpause_on_device(music_thing, uri=None, input_device='kuba-pc'):
     """
     Unpause on device
     """
     return 'Unpaused music on {}'.format(input_device)
 
 
-def skip():
+def skip_forward():
     """
     Skip currently playing song
     """
-    return 'Skipping'
+    spotify_api_wrapper.skip_forward()
+    res = 'Skipping current song'
+    return res
 
 
 def unskip():

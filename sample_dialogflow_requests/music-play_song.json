@@ -1,0 +1,16 @@
+{
+    "queryResult": {
+      "queryText": "Play Bohemian Rhapsody",
+      "action": "music.play",
+      "parameters": {
+        "artist": "",
+        "album": "",
+        "song": "Bohemian Rhapsody",
+        "playlist": "",
+        "genre": "",
+        "sort": ""
+      }
+    },
+  "purposeOfRequest": "The purpose of this request, is to play the specified track",
+  "purposeShort": "Play specified track (Bohemian Rhapsody)"
+}

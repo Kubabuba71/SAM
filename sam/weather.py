@@ -154,9 +154,9 @@ def get_weather_summary_for_hour(datetime_, coordinates):
     json_data = get_weather_data(coordinates, include=['hourly'])
     for entry in json_data['hourly']['data']:
         if entry['time'] == timestamp:
-            response = '{} with a temperature of {} degrees Celsius.'\
+            res = '{} with a temperature of {} degrees Celsius.'\
                 .format(entry['summary'], str(int(round(entry['apparentTemperature']))))
-            return response
+            return res
 
 
 def get_weather_summary_for_day(datetime_, coordinates):
@@ -200,9 +200,9 @@ def get_weather_summary_for_time_period(datetime_, coordinates):
     json_data = get_weather_data(coordinates, include=['hourly'])
     for i in json_data['hourly']['data']:
         if i['time'] == timestamp:
-            response = '{} with a temperature of {} degreese Celsius.'\
+            res = '{} with a temperature of {} degreese Celsius.'\
                 .format(i['summary'], str(int(round(i['apparentTemperature']))))
-            return response
+            return res
 
 
 def weather(datetime_, date_, location):
@@ -238,14 +238,14 @@ def weather(datetime_, date_, location):
 
             datetime_object = date_parser.parse(new_str)
 
-            response = get_weather_summary_for_time_period(datetime_object, coordinates)
+            res = get_weather_summary_for_time_period(datetime_object, coordinates)
 
         else:
             datetime_object = date_parser.parse(datetime_)
 
             if len(datetime_) == 25:
                 # 2018-08-04T12:00:00+02:00
-                response = get_weather_summary_for_day(datetime_object, coordinates)
+                res = get_weather_summary_for_day(datetime_object, coordinates)
                 pass
 
             else:
@@ -254,16 +254,16 @@ def weather(datetime_, date_, location):
     elif date_:
         # Get the weather for a specific date
         datetime_object = date_parser.parse(date_)
-        response = get_weather_summary_for_day(datetime_object, coordinates)
+        res = get_weather_summary_for_day(datetime_object, coordinates)
     else:
         # Assume that the weather is for the current time
-        response = get_weather_summary_current(coordinates)
+        res = get_weather_summary_current(coordinates)
         datetime_object = datetime.utcnow()
 
     print('Returning weather information:\ndate: {}\ncoordinates: {}\nresponse: {}'
-          .format(str(datetime_object), json.dumps(coordinates), response))
+          .format(str(datetime_object), json.dumps(coordinates), res))
 
-    if response:
-        return response
+    if res:
+        return res
     else:
         return str(None)

@@ -25,4 +25,4 @@ SPOTIFY_BASE_AUTHORIZATION_URL = os.environ.get('SPOTIFY_AUTHORIZATION_URL')
 SPOTIFY_REDIRECT_URI = os.environ.get('SPOTIFY_REDIRECT_URI')
 SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
-SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing']
+SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'user-modify-playback-state']

@@ -21,7 +21,6 @@ class RequestHandler:
         if self.action.startswith("music."):
             # self.action_handler = MusicHandler()
             self.action_handler = MusicActionHandler(self.action, self.parameters, self.contexts)
-            pass
 
         elif self.action.startswith("calendar"):
             # self.action_handler = CalendarHandler()
