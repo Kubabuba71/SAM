@@ -1,5 +1,5 @@
-from .weather import weather
 from . import music
+from .weather import weather
 
 
 class ActionHandler:

@@ -1,4 +1,4 @@
-from .actionhandlers import WeatherActionHandler, MusicActionHandler
+from .actionhandlers import MusicActionHandler, WeatherActionHandler
 
 
 class RequestHandler:

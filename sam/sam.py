@@ -1,15 +1,16 @@
-import os
 import json
+import os
 from random import choices
 from string import ascii_uppercase, digits
 
-from flask import Flask, request, make_response, redirect, send_file
+from flask import Flask, make_response, redirect, request, send_file
 from flask.json import jsonify
 
-from sam.requesthandlers import RequestHandler
-import sam.spotify_api_wrapper as spotify_api_wrapper
-from sam.music import music
+from sam import spotify_api_wrapper
 from sam.constants import STATIC_FILES_DIRECTORY
+from sam.music import music
+from sam.requesthandlers import RequestHandler
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', ''.join(choices(ascii_uppercase + digits, k=12)))
 app.workers = 1

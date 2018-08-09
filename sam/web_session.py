@@ -1,5 +1,5 @@
-from requests import session
 from cachecontrol import CacheControl
+from requests import session
 
 web_session = session()
 cached_session = CacheControl(web_session)
