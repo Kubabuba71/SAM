@@ -1,0 +1,100 @@
+<html>
+
+<head>
+    <title>SAM CONTROL - TEXT</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        var accessToken = "575980f2e29e40a5adc2dffca2843ef3";
+        var baseUrl = "https://api.api.ai/v1/";
+
+        $(document).ready(function() {
+            $("#input").keypress(function(event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+                    send();
+                    clearInput();
+                }
+            });
+        });
+
+
+        function setInput(text) {
+            $("#input").val(text);
+            send();
+        }
+
+        function updateRec() {
+            $("#rec").text(recognition ? "Stop" : "Speak");
+        }
+
+        function send() {
+            var text = $("#input").val();
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "query?v=20150910",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + accessToken
+                },
+                data: JSON.stringify({
+                    query: text,
+                    lang: "en",
+                    sessionId: "somerandomthing"
+                }),
+
+                success: function(data) {
+                    setResponse(JSON.stringify(data.result.fulfillment.speech, undefined, 2));
+                    console.log(data)
+                },
+                error: function() {
+                    setResponse("Internal Server Error");
+                }
+            });
+            setResponse("Loading...");
+        }
+
+        function setResponse(val) {
+            $("#response").text(val);
+        }
+
+        function clearInput() {
+            $(".my_input").text("");
+        }
+    </script>
+    <style type="text/css">
+        body {
+            width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        div {
+            position: absolute;
+        }
+        
+        input {
+            width: 400px;
+        }
+        
+        button {
+            width: 50px;
+        }
+        
+        textarea {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <br>Query</br>
+        <input id="input" type="text" class="my_input">
+        <br>Response<br> <textarea id="response" cols="40" rows="20"></textarea>
+    </div>
+</body>
+
+</html>

@@ -3,13 +3,13 @@ import json
 from random import choices
 from string import ascii_uppercase, digits
 
-from flask import Flask, request, make_response, redirect
+from flask import Flask, request, make_response, redirect, send_file
 from flask.json import jsonify
 
 from sam.requesthandlers import RequestHandler
 import sam.spotify_api_wrapper as spotify_api_wrapper
 from sam.music import music
-
+from sam.constants import STATIC_FILES_DIRECTORY
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', ''.join(choices(ascii_uppercase + digits, k=12)))
 app.workers = 1
@@ -109,6 +109,12 @@ def get_token_info():
 def current_song_info():
     res = music()
     return res
+
+
+@app.route('/static/<filename>')
+def static_filename(filename):
+    file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, filename))
+    return send_file(file_path)
 
 
 if __name__ == "__main__":
