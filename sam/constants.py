@@ -29,3 +29,4 @@ SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'use
 
 
 STATIC_FILES_DIRECTORY = os.path.abspath(os.path.join(os.getcwd(), 'static'))
+SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, 'sample_dialogflow_requests'))
