@@ -11,6 +11,7 @@ from sam.constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                            STATIC_FILES_DIRECTORY)
 from sam.music import music
 from sam.requesthandlers import RequestHandler
+from .dialogflow_api_wrapper import make_query
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', ''.join(choices(ascii_uppercase + digits, k=12)))
@@ -111,6 +112,12 @@ def current_song_info():
 def static_file(filename):
     file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, filename))
     return send_file(file_path)
+
+
+@app.route('/query', methods=['GET'])
+def query():
+    res = make_query(request.headers['query'])
+    return res['result']['fulfillment']['speech']
 
 
 if __name__ == "__main__":
