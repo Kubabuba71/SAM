@@ -16,6 +16,8 @@ GOOGLE_MAPS_GEOCODE_KEY = os.environ['GOOGLE_MAPS_GEOCODE_KEY']
 
 DAYLIGHT_SAVINGS = True
 
+WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'flags']
+
 # Constants related to the Spotify web API
 
 SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
@@ -27,6 +29,11 @@ SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
 SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'user-modify-playback-state']
 
+# Constants related to file serving
 
 STATIC_FILES_DIRECTORY = os.path.abspath(os.path.join(os.getcwd(), 'static'))
-SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, 'sample_dialogflow_requests'))
+SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY,
+                                                                    'sample_dialogflow_requests'))
+
+# Constants related to dialogflow connection
+DIALOGFLOW_CLIENT_ACCESS_TOKEN = os.environ['DIALOGFLOW_CLIENT_ACCESS_TOKEN']

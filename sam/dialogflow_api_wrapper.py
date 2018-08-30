@@ -1,8 +1,9 @@
-import apiai
 import json
-import os
 
-DIALOGFLOW_CLIENT_ACCESS_TOKEN = os.environ['DIALOGFLOW_CLIENT_ACCESS_TOKEN']
+import apiai
+
+from .constants import DIALOGFLOW_CLIENT_ACCESS_TOKEN
+
 ai = apiai.ApiAI(DIALOGFLOW_CLIENT_ACCESS_TOKEN)
 
 

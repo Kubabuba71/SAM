@@ -1,3 +1,5 @@
+import logging
+
 from requests_oauthlib import OAuth2Session
 
 from .constants import (SPOTIFY_BASE_AUTHORIZATION_URL, SPOTIFY_CLIENT_ID,
@@ -10,10 +12,11 @@ oauth2_session = OAuth2Session(SPOTIFY_CLIENT_ID,
                                state='sam_state')
 token = None
 authorization_response = None
+log = logging.getLogger(__name__)
 
 
 def get(url, params=None):
-    print('GET the following resource:', url)
+    log.debug(f'GET-ting the following resource:{url}')
     if params is not None:
         res = oauth2_session.get(url, params=params)
     else:
@@ -22,7 +25,7 @@ def get(url, params=None):
 
 
 def post(url, params=None):
-    print('POST the following resource:', url)
+    log.debug(f'POST-ing the following resource:{url}')
     if params is not None:
         res = oauth2_session.post(url, params=params)
     else:
@@ -31,7 +34,7 @@ def post(url, params=None):
 
 
 def put(url, data=None):
-    print('PUT the following resource: ', url)
+    log.debug(f'PUT-ting the following resource:{url}')
     if data is not None:
         res = oauth2_session.put(url, data=data)
     else:
@@ -40,14 +43,14 @@ def put(url, data=None):
 
 
 def authorization_url():
-    print('Generating Spotify Authorization URL')
+    log.debug('Generating Spotify Authorization URL')
     authorization_url_, state = oauth2_session.authorization_url(SPOTIFY_BASE_AUTHORIZATION_URL)
-    print('Authorization URL: {}'.format(authorization_url_))
+    log.debug(f'Authorization URL: {authorization_url_}')
     return authorization_url_, state
 
 
 def fetch_token(authorization_response_):
-    print('Fetching New Spotify Token')
+    log.debug('Fetching New Spotify Token')
     global authorization_response
     global token
     authorization_response = authorization_response_
