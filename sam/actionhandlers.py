@@ -25,19 +25,29 @@ class WeatherActionHandler(ActionHandler):
         self.action = action
         self.parameters = parameters
         self.contexts = contexts
-        try:
-            self.super_action, self.sub_action, self.specific_action = self.action.split('.')
-        except ValueError:
-            try:
-                self.super_action, self.sub_action = self.action.split('.'), None
-            except ValueError:
-                self.super_action = self.action, None
+        self.action_components = self.action.split('.')
+
+        if len(self.action_components) == 1:
+            self.super_action = self.action_components[0]
+            self.sub_action = None
+            self.sub_action = None
+
+        elif len(self.action_components) == 2:
+            self.super_action = self.action_components[0]
+            self.sub_action = self.action_components[1]
+            self.specific_action = None
+
+        elif len(self.action_components) == 3:
+            self.super_action = self.action_components[0]
+            self.sub_action = self.action_components[1]
+            self.specific_action = self.action_components[2]
 
     def execute_action(self):
         res = None
-        if self.sub_action and self.sub_action.startswith("followup"):
-            self._parse_contexts()
-            res = self._create_res()
+        if self.sub_action:
+            if self.sub_action.startswith("followup"):
+                self._parse_contexts()
+                res = self._create_res()
         else:
             self._parse_parameters()
             res = self._create_res()

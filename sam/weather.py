@@ -243,12 +243,20 @@ def weather(datetime_, date_, location):
             res = get_weather_summary_for_time_period(datetime_object, coordinates)
 
         else:
-            datetime_object = date_parser.parse(datetime_)
+            datetime_object: datetime = date_parser.parse(datetime_)
 
             if len(datetime_) == 25:
                 # 2018-08-04T12:00:00+02:00
-                res = get_weather_summary_for_day(datetime_object, coordinates)
-                pass
+                # This could be asking for the weather on a specific day, or for the current weather
+                # e.g.: 'What is the weather right now()
+                now_timestamp = datetime.utcnow().timestamp()
+                # check if now within a minute of datetime_object
+                datetime_object_timestamp = datetime_object.timestamp()
+                if datetime_object_timestamp - 60.0 <= now_timestamp <= datetime_object_timestamp + 60.0:
+                    # Get current weather
+                    res = get_weather_summary_current(coordinates)
+                else:
+                    res = get_weather_summary_for_day(datetime_object, coordinates)
 
             else:
                 return "ERROR: WEATHER DATE/DATETIME FORMAT IS INVALID"
