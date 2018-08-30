@@ -2,6 +2,7 @@
 Return various weather forecast, using ISO-8601 datetime format
 """
 import json
+import logging
 from copy import deepcopy
 from datetime import datetime
 
@@ -10,9 +11,9 @@ from dateutil import parser as date_parser
 from . import web_session
 from .constants import (DARK_SKY_KEY, DARK_SKY_URL, GOOGLE_MAPS_GEOCODE_KEY,
                         GOOGLE_MAPS_GEOCODE_URL, GOOGLE_MAPS_TIMEZONE_KEY,
-                        GOOGLE_MAPS_TIMEZONE_URL)
+                        GOOGLE_MAPS_TIMEZONE_URL, WEATHER_PARAMETERS)
 
-WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'flags']
+log = logging.getLogger(__name__)
 
 
 def generate_darksky_url(coordinates):
@@ -25,7 +26,7 @@ def generate_darksky_url(coordinates):
     """
     lat = coordinates['lat']
     lng = coordinates['lng']
-    url = '{}{}/{},{}'.format(DARK_SKY_URL, DARK_SKY_KEY, lat, lng)
+    url = f'{DARK_SKY_URL}{DARK_SKY_KEY}/{lat},{lng}'
     return url
 
 
@@ -73,7 +74,7 @@ def get_offset_from_utc(coordinates):
     current_epoch_time = datetime.utcnow().timestamp()
     lat = coordinates['lat']
     lng = coordinates['lng']
-    location_param = '{},{}'.format(lat, lng)
+    location_param = f'{lat},{lng}'
 
     params = {'key': GOOGLE_MAPS_TIMEZONE_KEY,
               'location': location_param,
@@ -111,7 +112,7 @@ def generate_summary(json_data, index=None):
     else:
         summary = json_data['summary']
         temperature = (json_data['apparentTemperatureMax'] + json_data['apparentTemperatureMin']) / 2
-    result = '{} with a temperature of {} degrees celsius'.format(summary, str(round(temperature, 2)))
+    result = f'{summary} with a temperature of {str(round(temperature, 2))} degrees celsius'
     return result
 
 
@@ -156,8 +157,9 @@ def get_weather_summary_for_hour(datetime_, coordinates):
     json_data = get_weather_data(coordinates, include=['hourly'])
     for entry in json_data['hourly']['data']:
         if entry['time'] == timestamp:
-            res = '{} with a temperature of {} degrees Celsius.'\
-                .format(entry['summary'], str(int(round(entry['apparentTemperature']))))
+            summary = entry['summary']
+            apparent_temperature = entry['apparentTemperature']
+            res = f'{summary} with a temperature of {str(int(round(apparent_temperature)))} degrees Celsius.'
             return res
 
 
@@ -200,10 +202,11 @@ def get_weather_summary_for_time_period(datetime_, coordinates):
     """
     timestamp = datetime_.timestamp()
     json_data = get_weather_data(coordinates, include=['hourly'])
-    for i in json_data['hourly']['data']:
-        if i['time'] == timestamp:
-            res = '{} with a temperature of {} degreese Celsius.'\
-                .format(i['summary'], str(int(round(i['apparentTemperature']))))
+    for entry in json_data['hourly']['data']:
+        if entry['time'] == timestamp:
+            summary = entry['summary']
+            apparent_temperature = entry['apparentTemperature']
+            res = f'{summary} with a temperature of {apparent_temperature} degreese Celsius.'
             return res
 
 
@@ -228,17 +231,19 @@ def weather(datetime_, date_, location):
             start_hour = date_parser.parse(datetime_['startDateTime']).hour
             end_hour = date_parser.parse(datetime_['endDateTime']).hour
 
-            average_hour = int((start_hour + end_hour) / 2)
+            average_hour_int = int((start_hour + end_hour) / 2)
 
-            if average_hour < 0 or average_hour > 24:
+            if average_hour_int < 0 or average_hour_int > 24:
                 return "Error, average_hour has been calculated as invalid"
-            if average_hour <= 9:
-                average_hour = '0{}'.format(average_hour)
+            if average_hour_int <= 9:
+                average_hour = f'0{average_hour_int}'
 
-            new_str = '{}{}{}'.format(datetime_['startDateTime'][:11],
-                                      str(average_hour), datetime_['startDateTime'][13:])
+            first_part = datetime_['startDateTime'][:11]
+            second_part = str(average_hour)
+            third_part = datetime_['startDateTime'][13:]
+            average_hour_str = f'{first_part}{second_part}{third_part}'
 
-            datetime_object = date_parser.parse(new_str)
+            datetime_object = date_parser.parse(average_hour_str)
 
             res = get_weather_summary_for_time_period(datetime_object, coordinates)
 
@@ -270,9 +275,10 @@ def weather(datetime_, date_, location):
         res = get_weather_summary_current(coordinates)
         datetime_object = datetime.utcnow()
 
-    print('Returning weather information:\ndate: {}\ncoordinates: {}\nresponse: {}'
-          .format(str(datetime_object), json.dumps(coordinates), res))
-
+    coordinates_str = json.dumps(coordinates)
+    log.debug(f'Returning weather information for the following:\n'
+              f'date: {str(datetime_object)}\n'
+              f'coordinates: {coordinates_str}')
     if res:
         return res
     else:

@@ -11,6 +11,7 @@ from sam.constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                            STATIC_FILES_DIRECTORY)
 from sam.music import music
 from sam.requesthandlers import RequestHandler
+
 from .dialogflow_api_wrapper import make_query
 
 app = Flask(__name__)
@@ -28,7 +29,7 @@ def hello():
 @app.route('/run_sample/<sample>')
 def run_sample(sample):
     try:
-        json_file = '{}.json'.format(sample)
+        json_file = f'{sample}.json'
         json_path = os.path.abspath(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, json_file))
         with open(json_path) as raw_json_data:
             sample_dialogflow_request = json.load(raw_json_data)
