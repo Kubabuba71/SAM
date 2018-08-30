@@ -18,7 +18,7 @@ class RequestHandler:
         Handles the incoming request, by taking the appropriate action
         :returns: The appropriate json response for the specified action, formatted as a str
         """
-        if self.action.startswith("music."):
+        if self.action.startswith("music"):
             # self.action_handler = MusicHandler()
             self.action_handler = MusicActionHandler(self.action, self.parameters, self.contexts)
 

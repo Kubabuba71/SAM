@@ -4,8 +4,8 @@
     "parameters": {
       "location": "Amsterdam",
       "date-time": {
-        "endDateTime": "2018-08-30T16:00:00+02:00",
-        "startDateTime": "2018-08-30T12:00:00+02:00"
+        "endDateTime": "2018-09-05T16:00:00+02:00",
+        "startDateTime": "2018-09-05T12:00:00+02:00"
       }
     },
     "outputContexts": [
@@ -16,8 +16,8 @@
           "date-time.original": "tomorrow afternoon?",
           "location": "Amsterdam",
           "date-time": {
-            "startDateTime": "2018-08-30T12:00:00+02:00",
-            "endDateTime": "2018-08-30T16:00:00+02:00"
+            "startDateTime": "2018-09-05T12:00:00+02:00",
+            "endDateTime": "2018-09-05T16:00:00+02:00"
           }
         }
       }
