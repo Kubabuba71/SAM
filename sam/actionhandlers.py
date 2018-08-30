@@ -35,13 +35,12 @@ class WeatherActionHandler(ActionHandler):
 
     def execute_action(self):
         res = None
-        if self.sub_action is not None:
-            if self.sub_action.startswith("followup"):
-                self._parse_contexts()
-                res = self._create_res()
-            else:
-                self._parse_parameters()
-                res = self._create_res()
+        if self.sub_action and self.sub_action.startswith("followup"):
+            self._parse_contexts()
+            res = self._create_res()
+        else:
+            self._parse_parameters()
+            res = self._create_res()
 
         return res or 'Weather action not implemented yet'
 

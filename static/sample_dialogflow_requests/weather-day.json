@@ -4,13 +4,13 @@
     "parameters": {
       "date-time": "",
       "location": "Amsterdam",
-      "date": "2018-08-10T01:21:55+02:00"
+      "date": "2018-08-30T01:21:55+02:00"
     },
     "outputContexts": [
       {
         "name": "weather",
         "parameters": {
-          "date": "2018-08-10T01:21:55+02:00",
+          "date": "2018-08-30T01:21:55+02:00",
           "date-time.original": "",
           "location.original": "",
           "date.original": "on friday?",

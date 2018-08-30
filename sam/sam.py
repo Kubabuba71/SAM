@@ -19,7 +19,9 @@ app.workers = 1
 
 @app.route("/")
 def hello():
-    return "All is well and good with SAM!\n"
+    file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, 'sam-text.html'))
+    return send_file(file_path)
+    # return "All is well and good with SAM!\n"
 
 
 @app.route('/run_sample/<sample>')

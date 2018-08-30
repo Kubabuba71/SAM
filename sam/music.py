@@ -8,7 +8,9 @@ def play_artist(artist, device=None):
     Play artist
     """
     spotify_api_wrapper.play(artist, type_='artist')
-    return 'Playing {}'.format(artist)
+    if isinstance(artist, list):
+        artist = artist[0]
+    return f'Playing {artist}'
 
 
 def play_album(album, device=None):
@@ -16,7 +18,7 @@ def play_album(album, device=None):
     Play album
     """
     spotify_api_wrapper.play(album, type_='album')
-    return 'Playing {}'.format(album)
+    return f'Playing {album}'
 
 
 def play_playlist(playlist, device=None):
@@ -24,7 +26,7 @@ def play_playlist(playlist, device=None):
     Play playlist
     """
     spotify_api_wrapper.play(playlist, type_='playlist')
-    return 'Playing {}'.format(playlist)
+    return f'Playing {playlist}'
 
 
 def play_song_of_artist(song, artist):
@@ -32,15 +34,15 @@ def play_song_of_artist(song, artist):
     Play song of some artist
     """
     spotify_api_wrapper.play([song, artist], type_='song_artist')
-    return 'Playing {} by {}'.format(song, artist)
+    return f'Playing {format} by {artist}'
 
 
 def play_song(song):
     """
-    Play song(parameter) on spotify
+    Play song on spotify
     """
     spotify_api_wrapper.play(song, type_='track')
-    return 'Playing {}'.format(song)
+    return f'Playing {song}'
 
 
 def play_artist_on_device(artist, device):
@@ -49,7 +51,7 @@ def play_artist_on_device(artist, device):
     """
     # spotify_api_wrapper.play(artist, type_='artist', device=device)
     # return 'Playing {} on {}'.format(artist, device)
-    return NotImplemented
+    return NOT_IMPLEMENTED
 
 
 def play_album_on_device(album, device):
@@ -58,7 +60,7 @@ def play_album_on_device(album, device):
     """
     # spotify_api_wrapper.play(album, type_='album', device=device)
     # return 'Playing {} on {}'.format(album, device)
-    return NotImplemented
+    return NOT_IMPLEMENTED
 
 
 def play_playlist_on_device(playlist, device):
@@ -67,7 +69,7 @@ def play_playlist_on_device(playlist, device):
     """
     # spotify_api_wrapper.play(playlist, type_='playlist', device=device)
     # return 'Playing {} on {}'.format(playlist, device)
-    return NotImplemented
+    return NOT_IMPLEMENTED
 
 
 def add_current_song_to_playlist(playlist):
@@ -76,7 +78,7 @@ def add_current_song_to_playlist(playlist):
     """
     # spotify_api_wrapper.add_to_playlist(playlist)
     # return 'Added current song to the {} playlist'.format(playlist)
-    return NotImplemented
+    return NOT_IMPLEMENTED
 
 
 def get_playlist_tracks(playlist_id):
@@ -146,7 +148,7 @@ def unpause_on_device(music_thing, uri=None, input_device='kuba-pc'):
     """
     Unpause on device
     """
-    return 'Unpaused music on {}'.format(input_device)
+    return f'Unpaused music on {input_device}'
 
 
 def skip_forward():
@@ -169,28 +171,28 @@ def repeat(mode='track'):
     """
     Turn on/off repeat
     """
-    return 'Repeat turned on with mode: {}'.format(mode)
+    return f'Repeat turned on with mode: {mode}'
 
 
 def volume(volume_level=50):
     """
     Change the volume
     """
-    return 'Volume set to: {}'.format(volume_level)
+    return f'Volume set to: {volume_level}'
 
 
 def shuffle(shuffle_state='false'):
     """
     Turn on/off shuffle
     """
-    return 'Shuffle state set to: {}'.format(shuffle_state)
+    return f'Shuffle state set to: {shuffle_state}'
 
 
 def transfer_to_device(input_device):
     """
     Transfer current song to specified device
     """
-    return 'Music playback transfered to {}'.format(input_device)
+    return f'Music playback transfered to {input_device}'
 
 
 def music():
@@ -201,4 +203,4 @@ def music():
     json_data = spotify_api_wrapper.currently_playing().json()
     artist = json_data['item']['artists'][0]['name']
     song_name = json_data['item']['name']
-    return '{} by {}'.format(song_name, artist)
+    return f'{song_name} by {artist}'
