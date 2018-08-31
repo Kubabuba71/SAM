@@ -5,6 +5,10 @@ from requests_oauthlib import OAuth2Session
 from .constants import (SPOTIFY_BASE_AUTHORIZATION_URL, SPOTIFY_CLIENT_ID,
                         SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI,
                         SPOTIFY_SCOPE, SPOTIFY_TOKEN_URL)
+from .exceptions import NoTokenError
+from .utils import log
+from datetime import datetime
+
 
 oauth2_session = OAuth2Session(SPOTIFY_CLIENT_ID,
                                redirect_uri=SPOTIFY_REDIRECT_URI,
@@ -12,45 +16,48 @@ oauth2_session = OAuth2Session(SPOTIFY_CLIENT_ID,
                                state='sam_state')
 token = None
 authorization_response = None
-log = logging.getLogger(__name__)
 
 
-def get(url, params=None):
-    log.debug(f'GET-ting the following resource:{url}')
-    if params is not None:
-        res = oauth2_session.get(url, params=params)
-    else:
-        res = oauth2_session.get(url)
+def get(url, data=None, params=None, **kwargs):
+    now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    log(f'DEBUG-{now}: SAM->GET {url}')
+    res = oauth2_session.get(url, data=data, params=params, **kwargs)
+    if res.status_code == 401:
+        # No token provided
+        raise NoTokenError('SAM does not have a token to connect to Spotify with')
     return res
 
 
-def post(url, params=None):
-    log.debug(f'POST-ing the following resource:{url}')
-    if params is not None:
-        res = oauth2_session.post(url, params=params)
-    else:
-        res = oauth2_session.post(url)
+def post(url, data=None, params=None, **kwargs):
+    now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    log(f'DEBUG-{now}: SAM->POST {url}')
+    res = oauth2_session.post(url, data=data, params=params, **kwargs)
+    if res.status_code == 401:
+        # No token provided
+        raise NoTokenError('SAM does not have a token to connect to Spotify with')
     return res
 
 
-def put(url, data=None):
-    log.debug(f'PUT-ting the following resource:{url}')
-    if data is not None:
-        res = oauth2_session.put(url, data=data)
-    else:
-        res = oauth2_session.put(url)
+def put(url, data=None, params=None, **kwargs):
+    now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    log(f'DEBUG-{now}: SAM->PUT {url}')
+    res = oauth2_session.put(url, data=data, params=params, **kwargs)
+    if res.status_code == 401:
+        # No token provided
+        raise NoTokenError('SAM does not have a token to connect to Spotify with')
     return res
 
 
 def authorization_url():
-    log.debug('Generating Spotify Authorization URL')
     authorization_url_, state = oauth2_session.authorization_url(SPOTIFY_BASE_AUTHORIZATION_URL)
-    log.debug(f'Authorization URL: {authorization_url_}')
+    now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    log(f'DEBUG-{now}: Generating Spotify Authorization URL: {authorization_url_}')
     return authorization_url_, state
 
 
 def fetch_token(authorization_response_):
-    log.debug('Fetching New Spotify Token')
+    now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    log(f'DEBUG-{now}: Fetching new Spotify Token')
     global authorization_response
     global token
     authorization_response = authorization_response_

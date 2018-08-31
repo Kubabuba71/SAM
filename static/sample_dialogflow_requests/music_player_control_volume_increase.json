@@ -1,0 +1,10 @@
+{
+  "queryResult": {
+    "action": "music.player_control.volume_increase",
+    "parameters": {
+      "percentage": "10"
+    }
+  },
+  "purposeOfRequest": "The purpose of this request, is to increase Spotify volume",
+  "purposeShort": "increase Spotify volume"
+}

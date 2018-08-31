@@ -16,10 +16,10 @@ class RequestHandler:
         query_text = self.req.get('queryResult').get('queryText')
         log.debug(f'Creating response for following query: {query_text}')
 
-    def handle_request(self):
+    def handle_request(self) -> dict:
         """
         Handles the incoming request, by taking the appropriate action
-        :returns: The appropriate json response for the specified action, formatted as a str
+        :returns: The appropriate json response for the specified action
         """
         if self.action.startswith("music"): 
             self.action_handler = MusicActionHandler(self.action, self.parameters, self.contexts)
@@ -31,6 +31,6 @@ class RequestHandler:
         elif self.action.startswith("weather"):
             self.action_handler = WeatherActionHandler(self.action, self.parameters, self.contexts)
 
-        result = 'Not yet implemented' if self.action_handler is None else self.action_handler.execute_action()
-        self. res = {'fulfillmentText': result}
+        text_response = self.action_handler.execute_action()
+        self.res = {'fulfillmentText': text_response}
         return self.res

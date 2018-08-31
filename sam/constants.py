@@ -37,3 +37,7 @@ SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY = os.path.abspath(os.path.join(STATIC_FILES
 
 # Constants related to dialogflow connection
 DIALOGFLOW_CLIENT_ACCESS_TOKEN = os.environ['DIALOGFLOW_CLIENT_ACCESS_TOKEN']
+
+
+# Constants related to inner SAM workings
+NOT_IMPLEMENTED = 'Not implemented yet!'

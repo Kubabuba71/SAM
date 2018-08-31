@@ -9,7 +9,7 @@ from flask.json import jsonify
 from sam import spotify_api_wrapper
 from sam.constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                            STATIC_FILES_DIRECTORY)
-from sam.music import music
+from sam.music import current_song
 from sam.requesthandlers import RequestHandler
 
 from .dialogflow_api_wrapper import make_query
@@ -35,9 +35,7 @@ def run_sample(sample):
             sample_dialogflow_request = json.load(raw_json_data)
         request_handler = RequestHandler(sample_dialogflow_request)
         json_res = request_handler.handle_request()
-        res = make_response(json.dumps(json_res))
-        res.headers['Content-Type'] = 'application/json'
-        return res
+        return jsonify(json_res)
     except FileNotFoundError as e:
         return make_response(str(e))
 
@@ -64,9 +62,9 @@ def test_all():
     for file in os.listdir(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY):
         with open(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, file)) as raw_json_data:
             sample_request_data = json.load(raw_json_data)
-            response = RequestHandler(sample_request_data).handle_request()
-            response['purpose'] = sample_request_data['purposeShort']
-            responses[file] = response
+        response = RequestHandler(sample_request_data).handle_request()
+        response['purpose'] = sample_request_data['purposeShort']
+        responses[file] = response
     return jsonify(responses)
 
 
@@ -93,8 +91,8 @@ def current_song():
     """
     Return current Spotify playback information
     """
-    res = spotify_api_wrapper.currently_playing()
-    return jsonify(res.json())
+    res = spotify_api_wrapper.currently_playing().json()
+    return jsonify(res)
 
 
 @app.route('/get_token_info')
@@ -105,7 +103,7 @@ def get_token_info():
 
 @app.route('/current_song_info')
 def current_song_info():
-    res = music()
+    res = current_song()
     return res
 
 

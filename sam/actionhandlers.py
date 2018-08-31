@@ -1,5 +1,7 @@
 from . import music
 from .weather import weather
+from .utils import parse_action
+from .exceptions import InvalidDataFormat
 
 
 class ActionHandler:
@@ -7,6 +9,12 @@ class ActionHandler:
     A meta-class that is handles the various action types
     Each action type has its own specific functionality, which is captured in the execute_action function
     """
+    def __init__(self, action, parameters, contexts):
+        self.action = action
+        self.parameters = parameters
+        self.contexts = contexts
+        self.action_components = self.action.split('.')
+        self.super_action, self.sub_action, self.specific_action = parse_action(self.action)
 
     def execute_action(self):
         """
@@ -22,25 +30,7 @@ class WeatherActionHandler(ActionHandler):
     """
 
     def __init__(self, action, parameters, contexts):
-        self.action = action
-        self.parameters = parameters
-        self.contexts = contexts
-        self.action_components = self.action.split('.')
-
-        if len(self.action_components) == 1:
-            self.super_action = self.action_components[0]
-            self.sub_action = None
-            self.sub_action = None
-
-        elif len(self.action_components) == 2:
-            self.super_action = self.action_components[0]
-            self.sub_action = self.action_components[1]
-            self.specific_action = None
-
-        elif len(self.action_components) == 3:
-            self.super_action = self.action_components[0]
-            self.sub_action = self.action_components[1]
-            self.specific_action = self.action_components[2]
+        super().__init__(action, parameters, contexts)
 
     def execute_action(self):
         res = None
@@ -79,54 +69,22 @@ class WeatherActionHandler(ActionHandler):
         return res
 
 
-class MusicActionHandler:
-    action = ''
-    parameters = ''
-    contexts = ''
-    super_action, sub_action, specific_action = '', '', ''
+class MusicActionHandler(ActionHandler):
 
     def __init__(self, action, parameters, contexts):
-        self.action = action
-        self.parameters = parameters
-        self.contexts = contexts
-        my_list = []
-        for _ in self.action.split('.'):
-            my_list.append(_)
-        super_action = my_list[0]
-        self.super_action = super_action
-        try:
-            sub_action = my_list[1]
-            self.sub_action = sub_action
-        except IndexError:
-            sub_action = ''
-        try:
-            specific_action = my_list[2]
-            self.specific_action = specific_action
-        except IndexError:
-            specific_action = ''
+        super().__init__(action, parameters, contexts)
 
     def execute_action(self):
-        # my_list = []
-        # for _ in self.action.split('.'):
-        #     my_list.append(_)
-        # super_action = my_list[0]
-        # self.super_action = super_action
-        # try:
-        #     sub_action = my_list[1]
-        #     self.sub_action = sub_action
-        # except IndexError:
-        #     sub_action = ''
-        # try:
-        #     specific_action = my_list[2]
-        #     self.specific_action = specific_action
-        # except IndexError:
-        #     specific_action = ''
         self._parse_parameters()
-        if self.sub_action is not None:
+        if self.sub_action:
             if self.sub_action == 'player_control':
                 res = self.player_control()
             elif self.sub_action == 'play':
                 res = self.play()
+            elif self.sub_action == 'device':
+                res = self.device()
+            else:
+                raise InvalidDataFormat('The specified action is invalid: {self.action}')
         else:
             res = 'Not implemented yet'
         return res
@@ -140,11 +98,16 @@ class MusicActionHandler:
         self.song = self.parameters.get('song', None)
         self.playlist = self.parameters.get('playlist', None)
         self.sort = self.parameters.get('sort', None)
-        pass
+        self.shuffle = self.parameters.get('shuffle', False)
+        self.volume = self.parameters.get('percentage', 10)
+        self.device = self.parameters.get('device', None)
 
     def play(self):
         if self.artist:
-            res = music.play_artist(self.artist)
+            if self.song:
+                res = music.play_song_of_artist(self.song, self.artist)
+            else:
+                res = music.play_artist(self.artist)
         elif self.album:
             res = music.play_album(self.album)
         elif self.song:
@@ -156,8 +119,50 @@ class MusicActionHandler:
         return res
 
     def player_control(self):
-        if self.specific_action == 'current_song':
-            res = music.music()
-        elif self.specific_action == 'skip_forward':
+        if self.specific_action == 'add_playlist':
+            res = music.add_current_song_to_playlist()
+        elif self.specific_action == 'current_song':
+            res = music.current_song()
+        elif self.specific_action == 'pause':
+            res = music.pause()
+        elif self.specific_action == 'repeat':
+            res = music.repeat()
+        elif self.specific_action == 'resume':
+            res = music.unpause()
+        elif self.specific_action == 'shuffle':
+            res = music.shuffle(self.shuffle)
+        elif self.specific_action == 'skip_backward':
+            res = music.unskip()
+        elif self.specific_action == 'skip_forward'\
+                or self.specific_action == 'skip_forward_followup':
             res = music.skip_forward()
+        elif self.specific_action == 'stop':
+            res = music.pause()
+        elif self.specific_action == 'volume_increase':
+            res = music.volume_increase(self.volume)
+        elif self.specific_action == 'volume_decrease':
+            res = music.volume_lower(self.volume)
+        else:
+            raise InvalidDataFormat(f'Specified action is not supported by SAM: {self.action}')
+
+        return res
+
+    def device(self):
+        if self.specific_action == 'play':
+            if self.artist:
+                if self.song:
+                    res = music.play_song_of_artist_on_device(self.song, self.artist, self.device)
+                else:
+                    res = music.play_artist_on_device(self.artist, self.device)
+            elif self.album:
+                res = music.play_album_on_device(self.album, self.device)
+            elif self.song:
+                res = music.play_song_on_device(self.song, self.device)
+            elif self.playlist:
+                res = music.play_playlist_on_device(self.playlist, self.device)
+            else:
+                raise InvalidDataFormat(f'Specified action is not supported by SAM: {self.action}')
+        else:
+            raise InvalidDataFormat(f'Specified action is not supported by SAM: {self.action}')
+
         return res

@@ -24,8 +24,8 @@
           "date-time": "@datetime.now"
         }
       }
-    ],
-    "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified day, for the specified location",
-    "purposeShort": "weather for day for location"
-  }
+    ]
+  },
+  "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified day, for the specified location",
+  "purposeShort": "weather for day for location"
 }
