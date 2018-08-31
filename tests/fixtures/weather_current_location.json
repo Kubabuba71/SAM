@@ -1,0 +1,31 @@
+{
+  "queryResult": {
+    "action": "weather",
+    "parameters": {
+      "date": "",
+      "date-time": "2018-08-31T00:06:09+02:00",
+      "location": {
+        "city": "Tbilisi"
+      }
+    },
+    "outputContexts": [
+      {
+        "name": "weather",
+        "parameters": {
+          "date": "",
+          "location.original": "tbilisi",
+          "location": {
+            "city.original": "tbilisi",
+            "city.object": {},
+            "city": "Tbilisi"
+          },
+          "date-time.original": "now?",
+          "date.original": "",
+          "date-time": "@datetime.now"
+        }
+      }
+    ],
+    "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified day, for the specified location",
+    "purposeShort": "weather for day for location"
+  }
+}

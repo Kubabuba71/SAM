@@ -13,6 +13,7 @@ python-dateutil = "==2.7.3"
 requests = "==2.19.1"
 requests-oauthlib = "*"
 apiai = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.6.6"

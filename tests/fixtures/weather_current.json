@@ -1,0 +1,27 @@
+{
+  "queryResult": {
+    "action": "weather",
+    "parameters": {
+      "date-time": "",
+      "location": {
+        "city": "Amsterdam"
+      }
+    },
+    "outputContexts": [
+      {
+        "name": "weather",
+        "parameters": {
+          "date-time.original": "",
+          "location.original": "Amsterdam",
+          "date-time": "",
+          "location": {
+            "city": "Amsterdam",
+            "city.original": "Amsterdam"
+          }
+        }
+      }
+    ]
+  },
+  "purposeOfRequest": "The purpose of this request, is to retrieve the current weather for the specified location",
+  "purposeShort": "current weather for location"
+}
