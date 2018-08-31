@@ -1,0 +1,25 @@
+{
+  "queryResult": {
+    "action": "weather",
+    "parameters": {
+      "date-time": "",
+      "location": "Amsterdam",
+      "date": "2018-09-05T01:21:55+02:00"
+    },
+    "outputContexts": [
+      {
+        "name": "weather",
+        "parameters": {
+          "date": "2018-09-05T01:21:55+02:00",
+          "date-time.original": "",
+          "location.original": "",
+          "date.original": "on friday?",
+          "date-time": "",
+          "location": "Amsterdam"
+        }
+      }
+    ]
+  },
+  "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified day, for the specified location",
+  "purposeShort": "weather for day for location"
+}

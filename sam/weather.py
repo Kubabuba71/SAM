@@ -12,6 +12,7 @@ from . import web_session
 from .constants import (DARK_SKY_KEY, DARK_SKY_URL, GOOGLE_MAPS_GEOCODE_KEY,
                         GOOGLE_MAPS_GEOCODE_URL, GOOGLE_MAPS_TIMEZONE_KEY,
                         GOOGLE_MAPS_TIMEZONE_URL, WEATHER_PARAMETERS)
+from .exceptions import InvalidDataFormat
 
 log = logging.getLogger(__name__)
 
@@ -236,10 +237,12 @@ def weather(datetime_, date_, location):
             if average_hour_int < 0 or average_hour_int > 24:
                 return "Error, average_hour has been calculated as invalid"
             if average_hour_int <= 9:
-                average_hour = f'0{average_hour_int}'
+                average_hour_str = f'0{average_hour_int}'
+            else:
+                average_hour_str = average_hour_int
 
             first_part = datetime_['startDateTime'][:11]
-            second_part = str(average_hour)
+            second_part = str(average_hour_str)
             third_part = datetime_['startDateTime'][13:]
             average_hour_str = f'{first_part}{second_part}{third_part}'
 
@@ -264,7 +267,7 @@ def weather(datetime_, date_, location):
                     res = get_weather_summary_for_day(datetime_object, coordinates)
 
             else:
-                return "ERROR: WEATHER DATE/DATETIME FORMAT IS INVALID"
+                raise InvalidDataFormat(f'The given datetime format is invalid: {datetime_}')
 
     elif date_:
         # Get the weather for a specific date

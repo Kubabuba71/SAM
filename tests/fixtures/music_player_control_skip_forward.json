@@ -1,0 +1,8 @@
+{
+  "queryResult": {
+    "action": "music.player_control.skip_forward",
+    "parameters": {}
+  },
+  "purposeOfRequest": "The purpose of this request, is to skip the currently playing song in Spotify",
+  "purposeShort": "skip currently playing Spotify song"
+}
