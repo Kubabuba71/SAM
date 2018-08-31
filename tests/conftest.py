@@ -4,7 +4,11 @@ import platform
 import json
 
 
-fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), 'fixtures'))
+if not os.getcwd().endswith('tests'):
+    fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), 'tests'))
+    fixtures_dir = os.path.abspath(os.path.join(fixtures_dir, 'fixtures'))
+else:
+    fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), 'fixtures'))
 
 
 def open_file(param):
@@ -89,6 +93,3 @@ def load_dotenv():
             for line in file_:
                 key, value = line.split('=')
                 os.environ[key] = value.strip()
-    else:
-        import dotenv
-        dotenv.load_dotenv()
