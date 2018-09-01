@@ -18,7 +18,7 @@ authorization_response = None
 
 def get(url, data=None, params=None, **kwargs):
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-    log(f'DEBUG-{now}: SAM->GET {url}')
+    log(f'DEBUG_SAM-{now}: GET {url}')
     res = oauth2_session.get(url, data=data, params=params, **kwargs)
     if res.status_code == 401:
         # No token provided
@@ -28,7 +28,7 @@ def get(url, data=None, params=None, **kwargs):
 
 def post(url, data=None, params=None, **kwargs):
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-    log(f'DEBUG-{now}: SAM->POST {url}')
+    log(f'DEBUG_SAM-{now}: POST {url}')
     res = oauth2_session.post(url, data=data, params=params, **kwargs)
     if res.status_code == 401:
         # No token provided
@@ -38,7 +38,7 @@ def post(url, data=None, params=None, **kwargs):
 
 def put(url, data=None, params=None, **kwargs):
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-    log(f'DEBUG-{now}: SAM->PUT {url}')
+    log(f'DEBUG_SAM-{now}: PUT {url}')
     res = oauth2_session.put(url, data=data, params=params, **kwargs)
     if res.status_code == 401:
         # No token provided
@@ -49,13 +49,13 @@ def put(url, data=None, params=None, **kwargs):
 def authorization_url():
     authorization_url_, state = oauth2_session.authorization_url(SPOTIFY_BASE_AUTHORIZATION_URL)
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-    log(f'DEBUG-{now}: Generating Spotify Authorization URL: {authorization_url_}')
+    log(f'DEBUG_SPOTIFY_WRAPPER-{now}: Generating Spotify Authorization URL: {authorization_url_}')
     return authorization_url_, state
 
 
 def fetch_token(authorization_response_):
     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-    log(f'DEBUG-{now}: Fetching new Spotify Token')
+    log(f'DEBUG_SPOTIFY_WRAPPER{now}: Fetching new Spotify Token')
     global authorization_response
     global token
     authorization_response = authorization_response_

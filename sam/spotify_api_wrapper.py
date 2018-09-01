@@ -112,7 +112,7 @@ def play(value, type_='artist', device: "str, dict"=None):
                 uri = spotify_playlists[value]
             except KeyError:
                 now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-                log(f'DEBUG-{now}: {value} playlist not in spotify_playlists.json. ')
+                log(f'DEBUG_SPOTIFY_WRAPPER-{now}: {value} playlist not in spotify_playlists.json. ')
                 json_data = get_uri(value, type_).json()
                 try:
                     uri = json_data['playlists']['items'][0]['uri']
