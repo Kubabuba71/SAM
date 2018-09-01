@@ -30,7 +30,7 @@ def get(url, params=None, data=None, **kwargs):
     :param data: optional data that can be used as body_data
     :return: requests.Response
     """
-    log(f'DEBUG_SAM-{now_str()}: GET {url}')
+    log(f'{now_str()}-DEBUG_SAM: GET {url}')
     r = cached_session.get(url, params=params, data=data, **kwargs)
     return r
 
@@ -44,6 +44,6 @@ def post(url, params=None, data=None, **kwargs):
     :param data: optional data that can be used as body_data
     :return: requests.Response
     """
-    log(f'DEBUG_SAM-{now_str()}: POST {url}')
+    log(f'{now_str()}-DEBUG_SAM: POST {url}')
     r = cached_session.post(url, params=params, data=data, **kwargs)
     return r
