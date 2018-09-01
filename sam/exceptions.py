@@ -10,3 +10,10 @@ class NoTokenError(Exception):
     No token was provided when accessing some API
     """
     pass
+
+
+class SpotifyPlaylistNotfoundError(Exception):
+    """
+    Spotify Playlist was not found anywhere
+    """
+    pass

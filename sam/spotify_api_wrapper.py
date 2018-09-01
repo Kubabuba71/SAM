@@ -3,6 +3,7 @@ from datetime import datetime
 
 from . import spotify_oauth2_session
 from .constants import NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE
+from .exceptions import SpotifyPlaylistNotfoundError
 from .utils import log
 
 with open(SPOTIFY_PLAYLISTS_FILE) as file_:
@@ -116,7 +117,9 @@ def play(value, type_='artist', device: "str, dict"=None):
                 try:
                     uri = json_data['playlists']['items'][0]['uri']
                 except KeyError:
-                    return KeyError(f'{value} playlist not found anywhere. Yikes.')
+                    raise SpotifyPlaylistNotfoundError(f'{value} playlist not found anywhere. Yikes.')
+                except IndexError:
+                    raise SpotifyPlaylistNotfoundError(f'{value} playlist not found anywhere. Yikes.')
         else:
             json_data = get_uri(value, type_).json()
             if type_ == 'artist':
