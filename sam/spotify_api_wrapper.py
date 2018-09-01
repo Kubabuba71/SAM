@@ -2,9 +2,10 @@ import json
 from datetime import datetime
 
 from . import spotify_oauth2_session
-from .constants import NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE
+from .constants import (NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE,
+                        SPOTIFY_WRAPPER_STR)
 from .exceptions import SpotifyPlaylistNotfoundError
-from .utils import log
+from .utils import log, now_str
 
 with open(SPOTIFY_PLAYLISTS_FILE) as file_:
     spotify_playlists: dict = json.load(file_)
@@ -111,8 +112,7 @@ def play(value, type_='artist', device: "str, dict"=None):
             try:
                 uri = spotify_playlists[value]
             except KeyError:
-                now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-                log(f'DEBUG_SPOTIFY_WRAPPER-{now}: {value} playlist not in spotify_playlists.json. ')
+                log(f'{now_str()}-DEBUG{SPOTIFY_WRAPPER_STR}: {value} playlist not in spotify_playlists.json. ')
                 json_data = get_uri(value, type_).json()
                 try:
                     uri = json_data['playlists']['items'][0]['uri']

@@ -42,3 +42,4 @@ DIALOGFLOW_CLIENT_ACCESS_TOKEN = os.environ['DIALOGFLOW_CLIENT_ACCESS_TOKEN']
 
 # Constants related to inner SAM workings
 NOT_IMPLEMENTED = 'Not implemented yet!'
+SPOTIFY_WRAPPER_STR = '_SPOTIFY_WRAPPER-' # For logging
