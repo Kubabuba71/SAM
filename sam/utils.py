@@ -8,7 +8,7 @@ def logged(func):
         res = func(*args, **kwargs)
         now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
         # log.debug(res)
-        print(f'DEBUG-{now}: RES: {res}')
+        print(f'DEBUG_RES-{now}: {res}')
         return res
     return decorated
 
