@@ -1,4 +1,4 @@
-import logging
+from datetime import datetime
 
 from requests_oauthlib import OAuth2Session
 
@@ -7,8 +7,6 @@ from .constants import (SPOTIFY_BASE_AUTHORIZATION_URL, SPOTIFY_CLIENT_ID,
                         SPOTIFY_SCOPE, SPOTIFY_TOKEN_URL)
 from .exceptions import NoTokenError
 from .utils import log
-from datetime import datetime
-
 
 oauth2_session = OAuth2Session(SPOTIFY_CLIENT_ID,
                                redirect_uri=SPOTIFY_REDIRECT_URI,

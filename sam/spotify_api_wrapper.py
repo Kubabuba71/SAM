@@ -1,7 +1,13 @@
 import json
+from datetime import datetime
 
 from . import spotify_oauth2_session
-from .constants import NOT_IMPLEMENTED
+from .constants import NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE
+from .exceptions import SpotifyPlaylistNotfoundError
+from .utils import log
+
+with open(SPOTIFY_PLAYLISTS_FILE) as file_:
+    spotify_playlists: dict = json.load(file_)
 
 valid_types = ['artist', 'album', 'track', 'playlist']
 
@@ -99,18 +105,29 @@ def play(value, type_='artist', device: "str, dict"=None):
     if type_ not in valid_types:
         raise ValueError('invalid type_ value passed. Valid types: "song", "album", "track", "playlist"')
 
-    json_data = get_uri(value, type_).json()
-
     if device is None:
         # Play on the currently active device
-        if type_ == 'artist':
-            uri = json_data['artists']['items'][0]['uri']
-        elif type_ == 'album':
-            uri = json_data['albums']['items'][0]['uri']
-        elif type_ == 'track':
-            uri = json_data['tracks']['items'][0]['uri']
-        elif type_ == 'playlist':
-            uri = json_data['playlist']['items'][0]['uri']
+        if type_ == 'playlist':
+            try:
+                uri = spotify_playlists[value]
+            except KeyError:
+                now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+                log(f'DEBUG-{now}: {value} playlist not in spotify_playlists.json. ')
+                json_data = get_uri(value, type_).json()
+                try:
+                    uri = json_data['playlists']['items'][0]['uri']
+                except KeyError:
+                    raise SpotifyPlaylistNotfoundError(f'{value} playlist not found anywhere. Yikes.')
+                except IndexError:
+                    raise SpotifyPlaylistNotfoundError(f'{value} playlist not found anywhere. Yikes.')
+        else:
+            json_data = get_uri(value, type_).json()
+            if type_ == 'artist':
+                uri = json_data['artists']['items'][0]['uri']
+            elif type_ == 'album':
+                uri = json_data['albums']['items'][0]['uri']
+            elif type_ == 'track':
+                uri = json_data['tracks']['items'][0]['uri']
     else:
         # Play on a specific device
         return NOT_IMPLEMENTED

@@ -1,8 +1,8 @@
-import pytest
+import json
 import os
 import platform
-import json
 
+import pytest
 
 if not os.getcwd().endswith('tests'):
     fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), 'tests'))

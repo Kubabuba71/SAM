@@ -1,10 +1,8 @@
 from . import spotify_api_wrapper
-from .utils import logged
 from .constants import NOT_IMPLEMENTED
 from .utils import normalize_volume_value
 
 
-@logged
 def play_artist(artist, device=None):
     """
     Play artist
@@ -16,7 +14,6 @@ def play_artist(artist, device=None):
     return f'Playing {artist}'
 
 
-@logged
 def play_album(album, device=None):
     """
     Play album
@@ -25,7 +22,6 @@ def play_album(album, device=None):
     return f'Playing {album}'
 
 
-@logged
 def play_playlist(playlist, device=None):
     """
     Play playlist
@@ -34,7 +30,6 @@ def play_playlist(playlist, device=None):
     return f'Playing {playlist}'
 
 
-@logged
 def play_song_of_artist(song, artist):
     """
     Play song of some artist
@@ -43,7 +38,6 @@ def play_song_of_artist(song, artist):
     return f'Playing {format} by {artist}'
 
 
-@logged
 def play_song(song):
     """
     Play song on spotify
@@ -52,7 +46,6 @@ def play_song(song):
     return f'Playing {song}'
 
 
-@logged
 def play_artist_on_device(artist, device):
     """
     Play specific artist on specific device
@@ -62,7 +55,6 @@ def play_artist_on_device(artist, device):
     return NOT_IMPLEMENTED
 
 
-@logged
 def play_album_on_device(album, device):
     """
     Play specified album on specified device
@@ -72,7 +64,6 @@ def play_album_on_device(album, device):
     return NOT_IMPLEMENTED
 
 
-@logged
 def play_playlist_on_device(playlist, device):
     """
     Play specified playlist on specified device
@@ -82,7 +73,6 @@ def play_playlist_on_device(playlist, device):
     return NOT_IMPLEMENTED
 
 
-@logged
 def add_current_song_to_playlist(playlist):
     """
     Adds currently playing song to specified playlist
@@ -92,7 +82,6 @@ def add_current_song_to_playlist(playlist):
     return NOT_IMPLEMENTED
 
 
-@logged
 def get_playlist_tracks(playlist_id):
     """
     Return tracks of specified playlist
@@ -107,7 +96,6 @@ def get_devices():
     return NOT_IMPLEMENTED
 
 
-@logged
 def playback_state():
     """
     Return current playback state
@@ -115,7 +103,6 @@ def playback_state():
     return NOT_IMPLEMENTED
 
 
-@logged
 def current_track_and_artist():
     """
     Return info on current track and artist
@@ -123,7 +110,6 @@ def current_track_and_artist():
     return NOT_IMPLEMENTED
 
 
-@logged
 def current_track():
     """
     Return info on current track
@@ -131,7 +117,6 @@ def current_track():
     return NOT_IMPLEMENTED
 
 
-@logged
 def current_artist():
     """
     Return info on current artist
@@ -139,7 +124,6 @@ def current_artist():
     return NOT_IMPLEMENTED
 
 
-@logged
 def current_album():
     """
     Return info on current album
@@ -147,7 +131,6 @@ def current_album():
     return NOT_IMPLEMENTED
 
 
-@logged
 def current_song():
     """
     Return artist and name of current song
@@ -158,7 +141,6 @@ def current_song():
     return f'{song_name} by {artist}'
 
 
-@logged
 def pause(device=None):
     """
     Pause on device, if specified
@@ -166,7 +148,6 @@ def pause(device=None):
     return NOT_IMPLEMENTED
 
 
-@logged
 def unpause(uri=None):
     """
     Unpause
@@ -175,7 +156,6 @@ def unpause(uri=None):
     return NOT_IMPLEMENTED
 
 
-@logged
 def unpause_on_device(music_thing, uri=None, input_device='kuba-pc'):
     """
     Unpause on device
@@ -184,7 +164,6 @@ def unpause_on_device(music_thing, uri=None, input_device='kuba-pc'):
     return NOT_IMPLEMENTED
 
 
-@logged
 def skip_forward():
     """
     Skip currently playing song
@@ -195,7 +174,6 @@ def skip_forward():
     return 'Skipping current song'
 
 
-@logged
 def unskip():
     """"
     Unskip currently playing song
@@ -204,7 +182,6 @@ def unskip():
     return NOT_IMPLEMENTED
 
 
-@logged
 def repeat(mode='track'):
     """
     Turn on/off repeat
@@ -213,7 +190,6 @@ def repeat(mode='track'):
     return NOT_IMPLEMENTED
 
 
-@logged
 def volume_increase(volume_amount=10):
     volume_amount = normalize_volume_value(volume_amount)
     current_volume_percent = spotify_api_wrapper.current_volume()
@@ -230,7 +206,6 @@ def volume_increase(volume_amount=10):
     return f'Increased volume by {volume_amount}'
 
 
-@logged
 def volume_lower(volume_amount=10):
     volume_amount = normalize_volume_value(volume_amount)
     current_volume_percent = spotify_api_wrapper.current_volume()
@@ -247,7 +222,6 @@ def volume_lower(volume_amount=10):
     return f'Lowered the volume by {volume_amount}'
 
 
-@logged
 def shuffle(shuffle_state=False):
     """
     Turn on/off shuffle
@@ -256,7 +230,6 @@ def shuffle(shuffle_state=False):
     return NOT_IMPLEMENTED
 
 
-@logged
 def transfer_to_device(input_device):
     """
     Transfer current song to specified device

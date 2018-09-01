@@ -1,7 +1,7 @@
 from . import music
-from .weather import weather
-from .utils import parse_action
 from .exceptions import InvalidDataFormat
+from .utils import logged, parse_action
+from .weather import weather
 
 
 class ActionHandler:
@@ -16,6 +16,7 @@ class ActionHandler:
         self.action_components = self.action.split('.')
         self.super_action, self.sub_action, self.specific_action = parse_action(self.action)
 
+    @logged
     def execute_action(self):
         """
         Execute the expected functionality of the specified action
@@ -32,6 +33,7 @@ class WeatherActionHandler(ActionHandler):
     def __init__(self, action, parameters, contexts):
         super().__init__(action, parameters, contexts)
 
+    @logged
     def execute_action(self):
         res = None
         if self.sub_action:
@@ -74,6 +76,7 @@ class MusicActionHandler(ActionHandler):
     def __init__(self, action, parameters, contexts):
         super().__init__(action, parameters, contexts)
 
+    @logged
     def execute_action(self):
         self._parse_parameters()
         if self.sub_action:

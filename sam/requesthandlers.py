@@ -1,8 +1,4 @@
-import logging
-
 from .actionhandlers import MusicActionHandler, WeatherActionHandler
-
-log = logging.getLogger(__name__)
 
 
 class RequestHandler:
@@ -14,7 +10,6 @@ class RequestHandler:
         self.contexts = self.req.get('queryResult').get('outputContexts')
         self.res = None
         query_text = self.req.get('queryResult').get('queryText')
-        log.debug(f'Creating response for following query: {query_text}')
 
     def handle_request(self) -> dict:
         """
