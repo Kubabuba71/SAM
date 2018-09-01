@@ -34,7 +34,8 @@ SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'use
 STATIC_FILES_DIRECTORY = os.path.abspath(os.path.join(os.getcwd(), 'static'))
 SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY,
                                                                     'sample_dialogflow_requests'))
-
+SPOTIFY_PLAYLISTS_FILE = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY,
+                                                      'spotify_playlists.json'))
 # Constants related to dialogflow connection
 DIALOGFLOW_CLIENT_ACCESS_TOKEN = os.environ['DIALOGFLOW_CLIENT_ACCESS_TOKEN']
 

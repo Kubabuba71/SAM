@@ -1,0 +1,16 @@
+{
+  "queryResult": {
+    "queryText": "Play my metal playlist",
+    "action": "music.play",
+    "parameters": {
+      "artist": [],
+      "album": "",
+      "song": "",
+      "playlist": "metal",
+      "genre": "",
+      "sort": ""
+    }
+  },
+  "purposeOfRequest": "The purpose of this request, is to play the specified playlist",
+  "purposeShort": "Play specified playlist (metal)"
+}
