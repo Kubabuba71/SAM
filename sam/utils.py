@@ -6,9 +6,7 @@ log = print
 def logged(func):
     def decorated(*args, **kwargs):
         res = func(*args, **kwargs)
-        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-        # log.debug(res)
-        print(f'DEBUG_RES-{now}: {res}')
+        print(f'{now_str()}-DEBUG_RES: {res}')
         return res
     return decorated
 
@@ -29,3 +27,7 @@ def normalize_volume_value(volume):
     if isinstance(volume, str):
         volume = int(volume.strip().replace('%', ''))
     return volume
+
+
+def now_str():
+    return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
