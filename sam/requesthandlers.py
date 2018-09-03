@@ -1,31 +1,33 @@
-from .actionhandlers import MusicActionHandler, WeatherActionHandler
+from . import web_session
+
+from .constants import SAM_HOST
 
 
-class RequestHandler:
-    def __init__(self, req):
-        self.req = req
-        self.action_handler = None
-        self.action = self.req.get('queryResult').get('action')
-        self.parameters = self.req.get('queryResult').get('parameters')
-        self.contexts = self.req.get('queryResult').get('outputContexts')
-        self.res = None
-        query_text = self.req.get('queryResult').get('queryText')
+def handle_request(json_data: dict) -> dict:
+    """
+    Handles the incoming request, by taking the appropriate action
+    :returns: The appropriate str response for the specified action
 
-    def handle_request(self) -> dict:
-        """
-        Handles the incoming request, by taking the appropriate action
-        :returns: The appropriate json response for the specified action
-        """
-        if self.action.startswith("music"): 
-            self.action_handler = MusicActionHandler(self.action, self.parameters, self.contexts)
+    Minimal example for json_data. This will play Damn Album by Kendrick Lamar on Spotify
+    {
+        "queryResult": {
+          "queryText": "Play Damn album",
+          "action": "music.play",
+          "parameters": {
+            "album": "Damn",
+          }
+        }
+    }
+    """
+    query_result = json_data.get('queryResult')
+    action = query_result.get('action')
 
-        elif self.action.startswith("calendar"):
-            # self.action_handler = CalendarHandler()
-            pass
+    if action.startswith('music'):
+        res = web_session.post(SAM_HOST + '/music', json=query_result, verify=False).json()
+    elif action.startswith('calendar'):
+        res = web_session.post(SAM_HOST + '/calendar', json=query_result, verify=False).json()
+    elif action.startswith('weather'):
+        res = web_session.post(SAM_HOST + '/weather', json=query_result, verify=False)
+        res = res.json()
 
-        elif self.action.startswith("weather"):
-            self.action_handler = WeatherActionHandler(self.action, self.parameters, self.contexts)
-
-        text_response = self.action_handler.execute_action()
-        self.res = {'fulfillmentText': text_response}
-        return self.res
+    return res

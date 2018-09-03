@@ -21,7 +21,7 @@ def get_json(url, params=None, data=None, **kwargs):
     return r.json()
 
 
-def get(url, params=None, data=None, **kwargs):
+def get(url, params=None, data=None, json_=None, **kwargs):
     """
     GET resource located at url
 
@@ -35,7 +35,7 @@ def get(url, params=None, data=None, **kwargs):
     return r
 
 
-def post(url, params=None, data=None, **kwargs):
+def post(url, params=None, data=None, json=None, **kwargs):
     """
     POST to resource located at url
 
@@ -45,5 +45,5 @@ def post(url, params=None, data=None, **kwargs):
     :return: requests.Response
     """
     log(f'{now_str()}-DEBUG_SAM: POST {url}')
-    r = cached_session.post(url, params=params, data=data, **kwargs)
+    r = cached_session.post(url, params=params, data=data, json=json, **kwargs)
     return r

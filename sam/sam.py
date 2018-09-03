@@ -9,8 +9,9 @@ from flask.json import jsonify
 from sam import spotify_api_wrapper
 from sam.constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                            STATIC_FILES_DIRECTORY)
-from sam.music import current_song
-from sam.requesthandlers import RequestHandler
+from sam.music import current_song, music_action
+from sam.weather import weather_action
+from .requesthandlers import handle_request
 
 from .dialogflow_api_wrapper import make_query
 
@@ -19,42 +20,43 @@ app.secret_key = os.environ.get('SECRET_KEY', ''.join(choices(ascii_uppercase + 
 app.workers = 1
 
 
-@app.route("/")
-def hello():
+@app.route("/", methods=['GET'])
+def hello_get_endpoint():
     file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, 'sam-text.html'))
     return send_file(file_path)
-    # return "All is well and good with SAM!\n"
 
 
-@app.route('/run_sample/<sample>')
-def run_sample(sample):
+@app.route('/run_sample/<sample>', methods=['GET'])
+def run_sample_get_endpoint(sample):
     try:
         json_file = f'{sample}.json'
-        json_path = os.path.abspath(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, json_file))
-        with open(json_path) as raw_json_data:
-            sample_dialogflow_request = json.load(raw_json_data)
-        request_handler = RequestHandler(sample_dialogflow_request)
-        json_res = request_handler.handle_request()
-        return jsonify(json_res)
+        json_path = os.path.abspath(
+            os.path.join(
+                SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, json_file
+            )
+        )
+
+        with open(json_path) as file_:
+            sample_dialogflow_request = json.load(file_)
+
+        res = handle_request(sample_dialogflow_request)
+        return jsonify(res)
     except FileNotFoundError as e:
         return make_response(str(e))
 
 
 @app.route("/dialogflow_webhook", methods=['POST'])
-def dialogflow_webhook():
+def dialogflow_webhook_post_endpoint():
     """
     Handle requests from dialogflow
     """
-    req = request.get_json(silent=True, force=True)
-    request_handler = RequestHandler(req)
-    json_res = json.dumps(request_handler.handle_request())
-    res = make_response(json_res)
-    res.headers['Content-Type'] = 'application/json'
-    return res
+    json_data = request.get_json(silent=True, force=True)
+    res = handle_request(json_data)
+    return jsonify(res)
 
 
-@app.route('/test_all')
-def test_all():
+@app.route('/test_all', methods=['GET'])
+def test_all_get_endpoint():
     """
     Test all requests, found in the folder sample_dialogflow_requests
     """
@@ -62,14 +64,14 @@ def test_all():
     for file in os.listdir(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY):
         with open(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, file)) as raw_json_data:
             sample_request_data = json.load(raw_json_data)
-        response = RequestHandler(sample_request_data).handle_request()
+        response = handle_request(sample_request_data)
         response['purpose'] = sample_request_data['purposeShort']
         responses[file] = response
     return jsonify(responses)
 
 
-@app.route("/login")
-def login():
+@app.route("/login", methods=['GET'])
+def login_get_endpoint():
     """
     Generic authorization request for the Spotify API
     """
@@ -77,8 +79,8 @@ def login():
     return redirect(authorization_url)
 
 
-@app.route("/spotify_callback")
-def spotify_callback():
+@app.route("/spotify_callback", methods=['GET'])
+def spotify_callback_get_endpoint():
     """
     Generic authorization callback for the Spotify API
     """
@@ -86,8 +88,8 @@ def spotify_callback():
     return 'Token has been fetched and saved'
 
 
-@app.route("/current_song")
-def current_song():
+@app.route("/current_song_json", methods=['GET'])
+def current_song_json_get_endpoint():
     """
     Return current Spotify playback information
     """
@@ -95,28 +97,73 @@ def current_song():
     return jsonify(res)
 
 
-@app.route('/get_token_info')
-def get_token_info():
+@app.route('/spotify_token_info', methods=['GET'])
+def spotify_token_info_get_endpoint():
     res = spotify_api_wrapper.token_info()
     return jsonify(res)
 
 
-@app.route('/current_song_info')
-def current_song_info():
+@app.route('/current_song', methods=['GET'])
+def current_song_get_endpoint():
     res = current_song()
     return res
 
 
-@app.route('/static/<filename>')
-def static_file(filename):
+@app.route('/static/<filename>', methods=['GET'])
+def static_file_get_endpoint(filename):
     file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, filename))
     return send_file(file_path)
 
 
-@app.route('/query', methods=['GET'])
-def query():
-    res = make_query(request.headers['query'])
+@app.route('/query', methods=['POST'])
+def query_post_endpoint():
+    res = make_query(request.get_json().get('query'))
     return res['result']['fulfillment']['speech']
+
+
+@app.route('/music', methods=['GET'])
+def music_get_endpoint():
+    res = current_song()
+    return res
+
+
+@app.route('/music', methods=['POST'])
+def music_post_endpoint():
+    json_data = request.get_json(silent=True, force=True)
+    res = music_action(json_data)
+    return jsonify({
+        'fulfillmentText': res
+    })
+
+
+@app.route('/calendar', methods=['GET'])
+def calendar_get_endpoint():
+    return jsonify({
+        'fulfillmentText': 'Not Implemented Yet'
+    })
+
+
+@app.route('/calendar', methods=['POST'])
+def calendar_post_endpoint():
+    return jsonify({
+        'fulfillmentText': 'Not Implemented Yet'
+    })
+
+
+@app.route('/weather', methods=['GET'])
+def weather_get_endpoint():
+    return jsonify({
+        'fulfillmentText': 'Not Implemented Yet'
+    })
+
+
+@app.route('/weather', methods=['POST'])
+def weather_post_endpoint():
+    json_data = request.get_json(silent=True, force=True)
+    res = weather_action(json_data)
+    return jsonify({
+        'fulfillmentText': res
+    })
 
 
 if __name__ == "__main__":

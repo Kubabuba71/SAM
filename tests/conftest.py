@@ -67,12 +67,6 @@ def weather_period():
 
 
 @pytest.fixture()
-def request_handler():
-    from sam.requesthandlers import RequestHandler
-    return RequestHandler
-
-
-@pytest.fixture()
 def now_str():
     from datetime import datetime
     now = datetime.utcnow()

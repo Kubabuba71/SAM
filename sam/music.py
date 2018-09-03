@@ -1,5 +1,6 @@
 from . import spotify_api_wrapper
 from .constants import NOT_IMPLEMENTED
+from .exceptions import InvalidDataFormat
 from .utils import normalize_volume_value
 
 
@@ -8,10 +9,13 @@ def play_artist(artist, device=None):
     Play artist
     """
     res = spotify_api_wrapper.play(artist, type_='artist')
-    if isinstance(artist, list):
-        artist = artist[0]
+    if res.status_code != 204:
+        return res.text
+    else:
+        if isinstance(artist, list):
+            artist = artist[0]
 
-    return f'Playing {artist}'
+        return f'Playing {artist}'
 
 
 def play_album(album, device=None):
@@ -30,7 +34,7 @@ def play_playlist(playlist, device=None):
     return f'Playing {playlist}'
 
 
-def play_song_of_artist(song, artist):
+def play_song_of_artist(song, artist, device=None):
     """
     Play song of some artist
     """
@@ -55,37 +59,12 @@ def play_artist_on_device(artist, device):
     return NOT_IMPLEMENTED
 
 
-def play_album_on_device(album, device):
-    """
-    Play specified album on specified device
-    """
-    # spotify_api_wrapper.play(album, type_='album', device=device)
-    # return 'Playing {} on {}'.format(album, device)
-    return NOT_IMPLEMENTED
-
-
-def play_playlist_on_device(playlist, device):
-    """
-    Play specified playlist on specified device
-    """
-    # spotify_api_wrapper.play(playlist, type_='playlist', device=device)
-    # return 'Playing {} on {}'.format(playlist, device)
-    return NOT_IMPLEMENTED
-
-
 def add_current_song_to_playlist(playlist):
     """
     Adds currently playing song to specified playlist
     """
     # spotify_api_wrapper.add_to_playlist(playlist)
     # return 'Added current song to the {} playlist'.format(playlist)
-    return NOT_IMPLEMENTED
-
-
-def get_playlist_tracks(playlist_id):
-    """
-    Return tracks of specified playlist
-    """
     return NOT_IMPLEMENTED
 
 
@@ -99,34 +78,6 @@ def get_devices():
 def playback_state():
     """
     Return current playback state
-    """
-    return NOT_IMPLEMENTED
-
-
-def current_track_and_artist():
-    """
-    Return info on current track and artist
-    """
-    return NOT_IMPLEMENTED
-
-
-def current_track():
-    """
-    Return info on current track
-    """
-    return NOT_IMPLEMENTED
-
-
-def current_artist():
-    """
-    Return info on current artist
-    """
-    return NOT_IMPLEMENTED
-
-
-def current_album():
-    """
-    Return info on current album
     """
     return NOT_IMPLEMENTED
 
@@ -148,25 +99,20 @@ def pause(device=None):
     return NOT_IMPLEMENTED
 
 
-def unpause(uri=None):
+def unpause(uri=None, device=None):
     """
-    Unpause
+    Unpause playback
+
+    :param uri: Optional Spotify URI to play. If not specified, playback is simply resumed
+    :param device: Optional device on which the uri should be played/playback should be resumed
     """
     # return 'Unpaused music'
     return NOT_IMPLEMENTED
 
 
-def unpause_on_device(music_thing, uri=None, input_device='kuba-pc'):
-    """
-    Unpause on device
-    """
-    # return f'Unpaused music on {input_device}'
-    return NOT_IMPLEMENTED
-
-
 def skip_forward():
     """
-    Skip currently playing song
+    Skip the currently playing song
     """
     res = spotify_api_wrapper.skip_forward()
     if res.status_code < 200 or res.status_code > 299:
@@ -176,7 +122,7 @@ def skip_forward():
 
 def unskip():
     """"
-    Unskip currently playing song
+    Unskip the currently playing song
     """
     # return 'Playing previous track'
     return NOT_IMPLEMENTED
@@ -185,12 +131,18 @@ def unskip():
 def repeat(mode='track'):
     """
     Turn on/off repeat
+    :param mode: Determines what repeat mode is used. By default, it repeats the current track.
     """
     # return f'Repeat turned on with mode: {mode}'
     return NOT_IMPLEMENTED
 
 
 def volume_increase(volume_amount=10):
+    """
+    Increase Spotify volume by '''volume_amount'''
+
+    :param volume_amount: By how much should volume be increased
+    """
     volume_amount = normalize_volume_value(volume_amount)
     current_volume_percent = spotify_api_wrapper.current_volume()
     if current_volume_percent == 100:
@@ -206,7 +158,12 @@ def volume_increase(volume_amount=10):
     return f'Increased volume by {volume_amount}'
 
 
-def volume_lower(volume_amount=10):
+def volume_decrease(volume_amount=10):
+    """
+    Decrease Spotify volume by '''volume_amount'''
+
+    :param volume_amount: By how much should volume be decreased
+    """
     volume_amount = normalize_volume_value(volume_amount)
     current_volume_percent = spotify_api_wrapper.current_volume()
     if current_volume_percent == 100:
@@ -236,3 +193,71 @@ def transfer_to_device(input_device):
     """
     # return f'Music playback transfered to {input_device}'
     return NOT_IMPLEMENTED
+
+
+def music_action(query_result: dict):
+    """
+    Perform a music action
+
+    query_result_example = {
+      "action": "music.play",
+      "parameters": {
+        "album": "Damn",
+      }
+    }
+    """
+    action = query_result.get('action').split('.')[1]
+
+    parameters = query_result.get('parameters')
+    artist = parameters.get('artist', None)
+    album = parameters.get('album', None)
+    song = parameters.get('song', None)
+    playlist = parameters.get('playlist', None)
+    device = parameters.get('device', None)
+    repeat_mode = parameters.get('repeat', None)
+    uri = parameters.get('uri', None)
+    shuffle_state = parameters.get('shuffle', None)
+    volume_amount = parameters.get('percentage', None)
+
+    if not action:
+        raise InvalidDataFormat('No action was provided')
+
+    if action == 'play':
+        if artist:
+            if song:
+                res = play_song_of_artist(song, artist, device=device)
+            else:
+                res = play_artist(artist, device)
+        elif album:
+            res = play_album(album, device)
+        elif playlist:
+            res = play_playlist(playlist, device)
+        else:
+            raise InvalidDataFormat('No artist/album/song/playlist was specified')
+    elif action == "add_playlist":
+        res = add_current_song_to_playlist(playlist)
+    elif action == "current_song":
+        res = current_song()
+    elif action == "pause":
+        res = pause(device)
+    elif action == "repeat":
+        res = repeat(repeat_mode)
+    elif action == "resume":
+        res = unpause(uri, device)
+    elif action == "shuffle":
+        res = shuffle(shuffle_state)
+    elif action == "skip_backward":
+        res = unskip()
+    elif action == "skip_forward":
+        res = skip_forward()
+    elif action == "stop":
+        res = pause(device)
+    elif action == 'transfer':
+        res = transfer_to_device(device)
+    elif action == "volume_decrease":
+        res = volume_decrease(volume_amount)
+    elif action == "volume_increase":
+        res = volume_increase(volume_amount)
+    else:
+        raise InvalidDataFormat(f'Specified action is invalid: {action}')
+    return res
