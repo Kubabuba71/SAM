@@ -1,6 +1,6 @@
 {
   "queryResult": {
-    "action": "music.player_control.volume_decrease",
+    "action": "music.volume_decrease",
     "parameters": {
       "percentage": "10"
     }

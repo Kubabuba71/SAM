@@ -211,26 +211,33 @@ def get_weather_summary_for_time_period(datetime_, coordinates):
             return res
 
 
-def weather(datetime_, date_, location):
-    # type: (Optional(str), Optional(str), Union[str, dict]) -> str
+def weather_action(query_result: dict):
     """
-    Return weather summary for datetime_
-
-    :param datetime_: The time to get the weather for - used to infer the hour
-    :param date_: The day to get the weather for - used to infer the day
-    :param location: The location to get the weather for
-    :returns: the generated response, based on datetime_ and location
+    Perform a weather action
+    query_result_example = {
+      "action": "weather.weather",
+      "parameters": {
+        "location": "Amsterdam",
+        "date-time": "2018-09-04T12:00:00+02:00"
+      }
+    }
     """
+    parameters = query_result.get('parameters')
+    date_time = parameters.get('date-time', None)
+    date = parameters.get('date', None)
+    location = parameters.get('location', None)
+    if isinstance(location, dict):
+        location = location['city']
     coordinates = get_coordinates(location)
 
-    if datetime_:
+    if date_time:
         # Get weather for specific datetime (day and hour)
-        if isinstance(datetime_, dict):
+        if isinstance(date_time, dict):
             # Assume that the request is for a period of time, with a start and end
             # We simply take the point in time that is between the start and end,
             # and return the weather for that time
-            start_hour = date_parser.parse(datetime_['startDateTime']).hour
-            end_hour = date_parser.parse(datetime_['endDateTime']).hour
+            start_hour = date_parser.parse(date_time['startDateTime']).hour
+            end_hour = date_parser.parse(date_time['endDateTime']).hour
 
             average_hour_int = int((start_hour + end_hour) / 2)
 
@@ -241,9 +248,9 @@ def weather(datetime_, date_, location):
             else:
                 average_hour_str = average_hour_int
 
-            first_part = datetime_['startDateTime'][:11]
+            first_part = date_time['startDateTime'][:11]
             second_part = str(average_hour_str)
-            third_part = datetime_['startDateTime'][13:]
+            third_part = date_time['startDateTime'][13:]
             average_hour_str = f'{first_part}{second_part}{third_part}'
 
             datetime_object = date_parser.parse(average_hour_str)
@@ -251,9 +258,9 @@ def weather(datetime_, date_, location):
             res = get_weather_summary_for_time_period(datetime_object, coordinates)
 
         else:
-            datetime_object: datetime = date_parser.parse(datetime_)
+            datetime_object: datetime = date_parser.parse(date_time)
 
-            if len(datetime_) == 25:
+            if len(date_time) == 25:
                 # 2018-08-04T12:00:00+02:00
                 # This could be asking for the weather on a specific day, or for the current weather
                 # e.g.: 'What is the weather right now()
@@ -269,9 +276,9 @@ def weather(datetime_, date_, location):
             else:
                 raise InvalidDataFormat(f'The given datetime format is invalid: {datetime_}')
 
-    elif date_:
+    elif date:
         # Get the weather for a specific date
-        datetime_object = date_parser.parse(date_)
+        datetime_object = date_parser.parse(date)
         res = get_weather_summary_for_day(datetime_object, coordinates)
     else:
         # Assume that the weather is for the current time
@@ -285,4 +292,4 @@ def weather(datetime_, date_, location):
     if res:
         return res
     else:
-        return str(None)
+        raise InvalidDataFormat(f'Specified date-time is invalid: {date_time}')

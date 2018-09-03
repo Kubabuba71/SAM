@@ -1,6 +1,6 @@
 {
   "queryResult": {
-    "action": "music.player_control.current_song",
+    "action": "music.current_song",
     "parameters": {}
   },
   "purposeOfRequest": "The purpose of this request, is to retrieve the currently playing song on Spotify",
