@@ -206,6 +206,8 @@ def music_action(query_result: dict):
       }
     }
     """
+    if 'queryResult' in query_result:
+        query_result = query_result['queryResult']
     action = query_result.get('action').split('.')[1]
 
     parameters = query_result.get('parameters')

@@ -222,6 +222,8 @@ def weather_action(query_result: dict):
       }
     }
     """
+    if 'queryResult' in query_result:
+        query_result = query_result['queryResult']
     parameters = query_result.get('parameters')
     date_time = parameters.get('date-time', None)
     date = parameters.get('date', None)

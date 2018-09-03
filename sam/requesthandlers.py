@@ -23,11 +23,11 @@ def handle_request(json_data: dict) -> dict:
     action = query_result.get('action')
 
     if action.startswith('music'):
-        res = web_session.post(SAM_HOST + '/music', json=query_result, verify=False).json()
+        res = web_session.post(SAM_HOST + '/music', json=query_result).json()
     elif action.startswith('calendar'):
-        res = web_session.post(SAM_HOST + '/calendar', json=query_result, verify=False).json()
+        res = web_session.post(SAM_HOST + '/calendar', json=query_result).json()
     elif action.startswith('weather'):
-        res = web_session.post(SAM_HOST + '/weather', json=query_result, verify=False)
+        res = web_session.post(SAM_HOST + '/weather', json=query_result)
         res = res.json()
 
     return res
