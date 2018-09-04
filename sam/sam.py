@@ -6,18 +6,26 @@ from string import ascii_uppercase, digits
 from flask import Flask, make_response, redirect, request, send_file
 from flask.json import jsonify
 
-from sam import spotify_api_wrapper
-from sam.constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
-                           STATIC_FILES_DIRECTORY)
-from sam.music import current_song, music_action
-from sam.weather import weather_action
-from .requesthandlers import handle_sam_request
+from . import spotify_api_wrapper
+from .constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
+                        STATIC_FILES_DIRECTORY)
 
 from .dialogflow_api_wrapper import make_query
+from .exceptions import SamException
+from .music import current_song, music_action
+from .requesthandlers import handle_sam_request
+from .weather import weather_action
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', ''.join(choices(ascii_uppercase + digits, k=12)))
 app.workers = 1
+
+
+@app.errorhandler(SamException)
+def handle_invalid_data_format(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
 
 
 @app.route("/", methods=['GET'])

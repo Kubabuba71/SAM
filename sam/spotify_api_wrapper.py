@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from . import spotify_oauth2_session
 from .constants import (NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE,

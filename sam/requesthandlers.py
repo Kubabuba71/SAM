@@ -1,6 +1,7 @@
+from .calendar_ import calender_action
+from .exceptions import InvalidDataFormat
 from .music import music_action
 from .weather import weather_action
-from .calendar_ import calender_action
 
 
 def handle_sam_request(json_data: dict) -> dict:
@@ -28,5 +29,7 @@ def handle_sam_request(json_data: dict) -> dict:
         res = calender_action()
     elif action.startswith('weather'):
         res = weather_action(json_data)
+    else:
+        raise InvalidDataFormat(f'action is not supported: {action}')
 
     return res
