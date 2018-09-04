@@ -1,9 +1,9 @@
-from . import web_session
+from .music import music_action
+from .weather import weather_action
+from .calendar_ import calender_action
 
-from .constants import SAM_HOST
 
-
-def handle_request(json_data: dict) -> dict:
+def handle_sam_request(json_data: dict) -> dict:
     """
     Handles the incoming request, by taking the appropriate action
     :returns: The appropriate str response for the specified action
@@ -23,11 +23,10 @@ def handle_request(json_data: dict) -> dict:
     action = query_result.get('action')
 
     if action.startswith('music'):
-        res = web_session.post(SAM_HOST + '/music', json=query_result).json()
+        res = music_action(json_data)
     elif action.startswith('calendar'):
-        res = web_session.post(SAM_HOST + '/calendar', json=query_result).json()
+        res = calender_action()
     elif action.startswith('weather'):
-        res = web_session.post(SAM_HOST + '/weather', json=query_result)
-        res = res.json()
+        res = weather_action(json_data)
 
     return res

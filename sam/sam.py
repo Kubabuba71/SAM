@@ -11,7 +11,7 @@ from sam.constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                            STATIC_FILES_DIRECTORY)
 from sam.music import current_song, music_action
 from sam.weather import weather_action
-from .requesthandlers import handle_request
+from .requesthandlers import handle_sam_request
 
 from .dialogflow_api_wrapper import make_query
 
@@ -39,7 +39,7 @@ def run_sample_get_endpoint(sample):
         with open(json_path) as file_:
             sample_dialogflow_request = json.load(file_)
 
-        res = handle_request(sample_dialogflow_request)
+        res = handle_sam_request(sample_dialogflow_request)
         return jsonify(res)
     except FileNotFoundError as e:
         return make_response(str(e))
@@ -51,8 +51,10 @@ def dialogflow_webhook_post_endpoint():
     Handle requests from dialogflow
     """
     json_data = request.get_json(silent=True, force=True)
-    res = handle_request(json_data)
-    return jsonify(res)
+    res = handle_sam_request(json_data)
+    return jsonify({
+        'fulfillmentText': res
+    })
 
 
 @app.route('/test_all', methods=['GET'])
@@ -64,7 +66,7 @@ def test_all_get_endpoint():
     for file in os.listdir(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY):
         with open(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, file)) as raw_json_data:
             sample_request_data = json.load(raw_json_data)
-        response = handle_request(sample_request_data)
+        response = handle_sam_request(sample_request_data)
         response['purpose'] = sample_request_data['purposeShort']
         responses[file] = response
     return jsonify(responses)

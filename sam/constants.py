@@ -20,11 +20,11 @@ WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'fla
 
 # Constants related to the Spotify web API
 
-SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
+SPOTIFY_CLIENT_ID = os.environ['SPOTIFY_CLIENT_ID']
+SPOTIFY_CLIENT_SECRET = os.environ['SPOTIFY_CLIENT_SECRET']
 
-SPOTIFY_BASE_AUTHORIZATION_URL = os.environ.get('SPOTIFY_AUTHORIZATION_URL')
-SPOTIFY_REDIRECT_URI = os.environ.get('SPOTIFY_REDIRECT_URI')
+SPOTIFY_BASE_AUTHORIZATION_URL = os.environ['SPOTIFY_AUTHORIZATION_URL']
+SPOTIFY_REDIRECT_URI = os.environ['SPOTIFY_REDIRECT_URI']
 SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
 SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'user-modify-playback-state']
@@ -42,5 +42,4 @@ DIALOGFLOW_CLIENT_ACCESS_TOKEN = os.environ['DIALOGFLOW_CLIENT_ACCESS_TOKEN']
 
 # Constants related to inner SAM workings
 NOT_IMPLEMENTED = 'Not implemented yet!'
-SPOTIFY_WRAPPER_STR = '_SPOTIFY_WRAPPER' # For logging
-SAM_HOST = os.environ['SAM_HOST']
+SPOTIFY_WRAPPER_STR = '_SPOTIFY_WRAPPER'  # For logging
