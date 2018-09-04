@@ -4,7 +4,24 @@ from .exceptions import InvalidDataFormat
 from .utils import normalize_volume_value
 
 
-def play_artist(artist: str, device=None):
+def play(artist=None, song=None, album=None, playlist=None, device=None):
+    if artist:
+        if song:
+            res = play_song_of_artist(song, artist, device=device)
+        else:
+            res = play_artist(artist, device=device)
+    elif album:
+        res = play_album(album, device=device)
+    elif playlist:
+        res = play_playlist(playlist, device=device)
+    elif song:
+        res = play_song(song, device=device)
+    else:
+        raise InvalidDataFormat('No artist/album/song/playlist was specified')
+    return res
+
+
+def play_artist(artist: str, device: "str dict"=None):
     """
     Play ```artist```
     :param artist: The name of the ```artist``` to play
@@ -54,7 +71,7 @@ def play_album(album: str, device: "str dict"=None):
     return f'Playing {album}'
 
 
-def play_playlist(playlist, device=None):
+def play_playlist(playlist, device: "str dict"=None):
     """
     Play ```playlist```
     :param playlist:    The name of the ```playlist``` to play
@@ -155,28 +172,15 @@ def current_song():
     return f'{song_name} by {artist}'
 
 
-def pause(device=None):
+def pause():
     """
-    Pause on device, if specified
-    :param device:  The device to which music playback should be transferred to.
-    :type device:   str - Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
+    Pause music playback on the currently active device
     """
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.pause()
+    return 'Paused music playback'
 
 
-def unpause(uri=None, device=None):
+def unpause(uri=None, device: "str dict"=None):
     """
     Unpause playback
 
@@ -343,55 +347,43 @@ def music_action(query_result: dict):
         query_result = query_result['queryResult']
     action = query_result.get('action').split('.')[1]
 
-    parameters = query_result.get('parameters')
-    artist = parameters.get('artist', None)
-    album = parameters.get('album', None)
-    song = parameters.get('song', None)
-    playlist = parameters.get('playlist', None)
-    device = parameters.get('device', None)
-    repeat_mode = parameters.get('repeat', None)
-    uri = parameters.get('uri', None)
-    shuffle_state = parameters.get('shuffle', None)
-    volume_amount = parameters.get('percentage', None)
-
     if not action:
-        raise InvalidDataFormat('No action was provided')
+        raise InvalidDataFormat('No specific music action was provided.')
+    parameters = query_result.get('parameters', None)
+    if parameters:
+        artist = parameters.get('artist', None)
+        album = parameters.get('album', None)
+        song = parameters.get('song', None)
+        playlist = parameters.get('playlist', None)
+        device = parameters.get('device', None)
+        repeat_mode = parameters.get('repeat', None)
+        uri = parameters.get('uri', None)
+        shuffle_state = parameters.get('shuffle', None)
+        volume_amount = parameters.get('percentage', None)
 
     if action == 'play':
-        if artist:
-            if song:
-                res = play_song_of_artist(song, artist, device=device)
-            else:
-                res = play_artist(artist, device=device)
-        elif album:
-            res = play_album(album, device=device)
-        elif playlist:
-            res = play_playlist(playlist, device=device)
-        else:
-            raise InvalidDataFormat('No artist/album/song/playlist was specified')
-    elif action == "add_playlist":
+        res = play(artist=artist, song=song, album=album, playlist=playlist, device=device)
+    elif action == 'add_playlist':
         res = add_current_song_to_playlist(playlist)
-    elif action == "current_song":
+    elif action == 'current_song':
         res = current_song()
-    elif action == "pause":
-        res = pause(device)
-    elif action == "repeat":
+    elif action == 'pause':
+        res = pause()
+    elif action == 'repeat':
         res = repeat(repeat_mode)
-    elif action == "resume":
+    elif action == 'resume':
         res = unpause(uri, device)
-    elif action == "shuffle":
+    elif action == 'shuffle':
         res = shuffle(shuffle_state)
-    elif action == "skip_backward":
+    elif action == 'skip_backward':
         res = unskip()
-    elif action == "skip_forward":
+    elif action == 'skip_forward':
         res = skip_forward()
-    elif action == "stop":
-        res = pause(device)
     elif action == 'transfer':
         res = transfer_to_device(device)
-    elif action == "volume_decrease":
+    elif action == 'volume_decrease':
         res = volume_decrease(volume_amount)
-    elif action == "volume_increase":
+    elif action == 'volume_increase':
         res = volume_increase(volume_amount)
     else:
         raise InvalidDataFormat(f'Specified action is invalid: {action}')
