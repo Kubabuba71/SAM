@@ -10,8 +10,10 @@ class SamException(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['message'] = self.message
         rv['fulfillmentText'] = self.message
+        rv['errorType'] = str(type(self).__name__)
+        if self.payload:
+            rv['payload'] = self.payload
         return rv
 
 

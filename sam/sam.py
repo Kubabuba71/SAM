@@ -9,7 +9,6 @@ from flask.json import jsonify
 from . import spotify_api_wrapper
 from .constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                         STATIC_FILES_DIRECTORY)
-
 from .dialogflow_api_wrapper import make_query
 from .exceptions import SamException
 from .music import current_song, music_action
