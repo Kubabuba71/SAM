@@ -23,14 +23,11 @@ def play_artist(artist: str, device=None):
                                 "volume_percent" : 100
                             }
     """
-    res = spotify_api_wrapper.play(artist, type_='artist')
-    if res.status_code != 204:
-        return res.text
-    else:
-        if isinstance(artist, list):
-            artist = artist[0]
+    spotify_api_wrapper.play(artist, type_='artist', device=device)
+    if isinstance(artist, list):
+        artist = artist[0]
 
-        return f'Playing {artist}'
+    return f'Playing {artist}'
 
 
 def play_album(album: str, device: "str dict"=None):
@@ -76,7 +73,7 @@ def play_playlist(playlist, device=None):
                                 "volume_percent" : 100
                             }
     """
-    spotify_api_wrapper.play(playlist, type_='playlist')
+    spotify_api_wrapper.play(playlist, type_='playlist', device=device)
     return f'Playing {playlist}'
 
 
@@ -132,9 +129,13 @@ def add_current_song_to_playlist(playlist: str):
     Adds currently playing song to ```playlist```
     :param playlist: The name of the ```playlist``` to which the current song should be added to.
     """
-    # spotify_api_wrapper.add_to_playlist(playlist)
-    # return 'Added current song to the {} playlist'.format(playlist)
-    return NOT_IMPLEMENTED
+    if playlist is None:
+        raise InvalidDataFormat('playlist parameter not found in request body')
+    song_uri = spotify_api_wrapper.currently_playing().json()['item']['uri']
+    playlist_id = spotify_api_wrapper.get_playlist_uri(playlist).split(':')[-1]
+    spotify_api_wrapper.add_to_playlist(song_uri, playlist_id)
+    current_song_summary = current_song()
+    return f'Added {current_song_summary} to {playlist} playlist'
 
 
 def get_devices():
@@ -361,11 +362,11 @@ def music_action(query_result: dict):
             if song:
                 res = play_song_of_artist(song, artist, device=device)
             else:
-                res = play_artist(artist, device)
+                res = play_artist(artist, device=device)
         elif album:
-            res = play_album(album, device)
+            res = play_album(album, device=device)
         elif playlist:
-            res = play_playlist(playlist, device)
+            res = play_playlist(playlist, device=device)
         else:
             raise InvalidDataFormat('No artist/album/song/playlist was specified')
     elif action == "add_playlist":
