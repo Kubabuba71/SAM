@@ -150,6 +150,11 @@ def play(value: str, type_: str='artist', device: "str, dict"=None):
     return res
 
 
+def pause():
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/pause')
+    return res
+
+
 def set_volume(volume_percent: int=50, device_id: str=None):
     """
     Set the user's volume_percent
