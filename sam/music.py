@@ -26,19 +26,9 @@ def play_artist(artist: str, device: "str dict"=None):
     Play ```artist```
     :param artist: The name of the ```artist``` to play
     :param device:  The device on which the artist should be played on.
-    :type device:   str - Natural Language String of the device e.g.: ```JOHN-PC```.
+    :type device:   str -   Natural Language String of the device e.g.: ```JOHN-PC```.
                             In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
+                    dict -  Device Object retrieved from the Spotify API
     """
     spotify_api_wrapper.play(artist, type_='artist', device=device)
     if isinstance(artist, list):
@@ -53,19 +43,6 @@ def play_album(album: str, device: "str dict"=None):
     :param album:   The name of the ```album``` to play
     :type album: str
     :param device:  The ```device``` on which the album should be played on.
-    :type device:   str - Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
     """
     spotify_api_wrapper.play(album, type_='album', device=device)
     return f'Playing {album}'
@@ -76,19 +53,6 @@ def play_playlist(playlist, device: "str dict"=None):
     Play ```playlist```
     :param playlist:    The name of the ```playlist``` to play
     :param device:      The name of the ```device``` on which the ```playlist``` should be played on.
-    :type device:       str - Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                        dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
     """
     spotify_api_wrapper.play(playlist, type_='playlist', device=device)
     return f'Playing {playlist}'
@@ -100,19 +64,6 @@ def play_song_of_artist(song: str, artist: str, device: "str dict"=None):
     :param song:    The name of the ```song``` to play
     :param artist:  The name of the ```artist``` of the song
     :param device:  The ```device``` on which the ```song``` of the ```artist``` should be played on.
-    :type device:   str - Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
     """
     spotify_api_wrapper.play([song, artist], type_='song_artist', device=device)
     return f'Playing {format} by {artist}'
@@ -123,19 +74,6 @@ def play_song(song, device: "str dict"=None):
     Play ```song```
     :param song:    The ```song``` to play
     :param device:  The ```device``` to which music playback should be transferred to.
-    :type device:   str - Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
     """
     spotify_api_wrapper.play(song, type_='track', device=device)
     return f'Playing {song}'
@@ -163,15 +101,6 @@ def get_active_device() -> dict:
     return spotify_api_wrapper.current_playback_state().json()['device']
 
 
-def get_available_devices() -> dict:
-    """
-    Return currently available devices
-    :return: List of available Device Objects from the Spotify API
-    """
-    devices = spotify_api_wrapper.available_devices().json()
-    return NOT_IMPLEMENTED
-
-
 def current_song():
     """
     Get current song_name and artist, as a nice ```str``` representation
@@ -196,19 +125,6 @@ def unpause(uri=None, device: "str dict"=None):
 
     :param uri:     Optional Spotify URI to play. If not specified, playback is simply resumed
     :param device:  The device on which music playback should be unpaused on.
-    :type device:   str - Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
     """
     if device:
         if isinstance(device, str):
@@ -308,19 +224,6 @@ def transfer_to_device(device: "str dict"):
     """
     Transfer current song to specified device
     :param device:  The device to which music playback should be transferred to.
-    :type device:   str -   Natural Language String of the device e.g.: ```JOHN-PC```.
-                            In this case, it depends what name Spotify assigns to the device.
-                    dict - Device Object retrieved from the Spotify API
-                            e.g.:
-                            {
-                                "id" : "5fbb3ba6aa454b5534c4ba43a8c7e8e45a63ad0e",
-                                "is_active" : false,
-                                "is_private_session": true,
-                                "is_restricted" : false,
-                                "name" : "My fridge",
-                                "type" : "Computer",
-                                "volume_percent" : 100
-                            }
     """
     # return f'Music playback transfered to {indeviceput_device}'
     return NOT_IMPLEMENTED
@@ -333,7 +236,6 @@ def music_action(query_result: dict):
                                     Depending on the action, different key-value pairs are needed.
                                     The below example shows all possible parameters.
                                     Note that not ALL of these are needed, depending on the action.
-
     e.g.:
     {
         "action": "music.play",
@@ -349,24 +251,6 @@ def music_action(query_result: dict):
             "volume_amount": "10%"
         }
     }
-
-    e.g.:
-    {
-        "queryResult": {
-            "action": "music.play",
-            "parameters": {
-                "artist": "Queen",
-                "album": "A Night at the Opera",
-                "song": "Bohemian Rhapsody",
-                "playlist": "Rock",
-                "device": "JOHN-PC",
-                "repeat_mode": "track",
-                "uri": "spotify:track:4u7EnebtmKWzUH433cf5Qv",
-                "shuffle_state": "on",
-                "volume_amount": "10%"
-            }
-        }
-    }
     """
     if 'queryResult' in query_result:
         query_result = query_result['queryResult']
@@ -374,7 +258,10 @@ def music_action(query_result: dict):
 
     if not action:
         raise InvalidDataFormat('No specific music action was provided.')
+
     parameters = query_result.get('parameters', None)
+
+    # TODO: Some parameters have to be set to default, even if not specified
     if parameters:
         artist = parameters.get('artist', None)
         album = parameters.get('album', None)
@@ -382,9 +269,11 @@ def music_action(query_result: dict):
         playlist = parameters.get('playlist', None)
         device = parameters.get('device', None)
         repeat_mode = parameters.get('repeat', None)
-        uri = parameters.get('uri', None)
         shuffle_state = parameters.get('shuffle', None)
-        volume_amount = parameters.get('percentage', None)
+
+    # These parameters need to be set to None at the very least
+    uri = parameters.get('uri', None)
+    volume_amount = parameters.get('percentage', None)
 
     if action == 'play':
         res = play(artist=artist, song=song, album=album, playlist=playlist, device=device)
