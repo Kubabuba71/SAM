@@ -37,11 +37,27 @@ def current_volume():
     return current_playback_state().json()['device']['volume_percent']
 
 
-def current_device():
+def available_devices():
     """
-    Get the user's current information
+    Get the user's currently available devices
     """
-    return current_playback_state().json()['device']
+    res = spotify_oauth2_session.get('https://api.spotify.com/v1/me/player/devices')
+    return res
+
+
+def get_device_by_name(device_name: str) -> dict:
+    """
+    Get the name of the device that has name equivalent to ```device_name```.
+    :returns    dict - Spotify Device Object that has name equivalent to ```device_name```
+                None - device_name was not found in the currently available list
+    """
+    device_name = device_name.replace(' ', '').replace('-', '').lower()
+    devices = available_devices().json()
+    for device in devices['devices']:
+        if device['name'].replace(' ', '').replace('-', '').lower() == device_name \
+                or device['id'] == device_name:
+            return device
+    return None
 
 
 @property
@@ -85,6 +101,20 @@ def get_uri(input_, type_='track'):
     return res
 
 
+def get_playlist_uri(input_):
+    if input_ in spotify_playlists:
+        uri = spotify_playlists[input_]
+    else:
+        log(f'{now_str()}-DEBUG{SPOTIFY_WRAPPER_STR}: {input_} playlist not in spotify_playlists.json. '
+            f'Connecting to Spotify API')
+        json_data = get_uri(input_, 'playlist').json()
+        try:
+            uri = json_data['playlists']['items'][0]['uri']
+        except IndexError:
+            raise SpotifyPlaylistNotfoundError(f'{input_} playlist not found anywhere. Yikes.')
+    return uri
+
+
 def skip_forward():
     """
     Skip the currently playing song
@@ -93,12 +123,12 @@ def skip_forward():
     return res
 
 
-def play(value, type_='artist', device: "str, dict"=None):
+def play(value: str, type_: str='artist', device: "str, dict"=None):
     """
     Attempt to play the specified value, based on type_
     :param value: The value to search for and ultimately play (song name, artist name, album name, playlist name)
     :param type_: (song, artist, album, playlist)
-    :param device: The device to play one - device_name or device_dict
+    :param device: The device to play one - device_name or device_dict(from Spotify API)
 
     :returns: requests.Response
     """
@@ -108,17 +138,7 @@ def play(value, type_='artist', device: "str, dict"=None):
     if device is None:
         # Play on the currently active device
         if type_ == 'playlist':
-            try:
-                uri = spotify_playlists[value]
-            except KeyError:
-                log(f'{now_str()}-DEBUG{SPOTIFY_WRAPPER_STR}: {value} playlist not in spotify_playlists.json. ')
-                json_data = get_uri(value, type_).json()
-                try:
-                    uri = json_data['playlists']['items'][0]['uri']
-                except KeyError:
-                    raise SpotifyPlaylistNotfoundError(f'{value} playlist not found anywhere. Yikes.')
-                except IndexError:
-                    raise SpotifyPlaylistNotfoundError(f'{value} playlist not found anywhere. Yikes.')
+            uri = get_playlist_uri(value)
         else:
             json_data = get_uri(value, type_).json()
             if type_ == 'artist':
@@ -133,12 +153,34 @@ def play(value, type_='artist', device: "str, dict"=None):
 
     if type_ == 'track':
         # Play a track
-        data = json.dumps({'uris': [uri]})
+        data = json.dumps({
+            'uris': [uri]
+        })
         res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', data=data)
     else:
         # Play an artist/album/playlist
-        data = json.dumps({'context_uri': uri})
+        data = json.dumps({
+            'context_uri': uri
+        })
         res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', data=data)
+    return res
+
+
+def pause():
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/pause')
+    return res
+
+
+def unpause(device_id: str=None):
+    """
+    Unpause music playback.
+    :param device_id:   The id of the device on which music playback should be unpaused.
+                        If not supplied, current active device is the target
+    """
+    params = dict()
+    if device_id:
+        params['device_id'] = device_id
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', params=params)
     return res
 
 
@@ -155,4 +197,12 @@ def set_volume(volume_percent: int=50, device_id: str=None):
     if device_id:
         params['device_id'] = device_id
     res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/volume', params=params)
+    return res
+
+
+def add_to_playlist(song_uri, playlist_id):
+    params = {
+        'uris': song_uri
+    }
+    res = spotify_oauth2_session.post(f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks', params=params)
     return res

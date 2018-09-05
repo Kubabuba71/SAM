@@ -1,5 +1,9 @@
 from datetime import datetime
 
+from requests import Response
+
+from .exceptions import NoTokenError, SamException
+
 log = print
 
 
@@ -31,3 +35,17 @@ def normalize_volume_value(volume):
 
 def now_str():
     return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+
+
+def spotify_check_status_code(func):
+    def decorated(*args, **kwargs):
+        res: Response = func(*args, **kwargs)
+        if res.status_code == 401:
+            # No token provided
+            raise NoTokenError('SAM does not have a token to connect to Spotify with', res.status_code)
+        elif res.status_code < 200 or res.status_code >= 300:
+            raise SamException(f'Error during a {res.request.method} to {res.request.url}',
+                               status_code=res.status_code,
+                               payload=res.text)
+        return res
+    return decorated

@@ -1,3 +1,6 @@
+import json
+
+
 class SamException(Exception):
     status_code = 400
 
@@ -9,9 +12,17 @@ class SamException(Exception):
         self.payload = payload
 
     def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
+        if isinstance(self.payload, str):
+            rv = {'payload': self.payload}
+        else:
+            rv = dict(self.payload or ())
         rv['fulfillmentText'] = self.message
+        rv['errorType'] = str(type(self).__name__)
+        if self.payload:
+            if self.payload.startswith('{'):
+                rv['payload'] = json.loads(self.payload)
+            else:
+                rv['payload'] = self.payload
         return rv
 
 

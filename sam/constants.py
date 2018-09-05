@@ -27,7 +27,8 @@ SPOTIFY_BASE_AUTHORIZATION_URL = os.environ['SPOTIFY_AUTHORIZATION_URL']
 SPOTIFY_REDIRECT_URI = os.environ['SPOTIFY_REDIRECT_URI']
 SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
-SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'user-modify-playback-state']
+SPOTIFY_SCOPE = ['user-read-playback-state', 'user-read-currently-playing', 'user-modify-playback-state',
+                 'playlist-modify-public', 'playlist-modify-private']
 
 # Constants related to file serving
 
