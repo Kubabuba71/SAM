@@ -155,10 +155,20 @@ def add_current_song_to_playlist(playlist: str):
     return f'Added {current_song_summary} to {playlist} playlist'
 
 
-def get_devices():
+def get_active_device() -> dict:
     """
-    Return currently connected devices
+    Return a Device Object of the currently active device
+    :return:    Device Object from the Spotify API of the currently active device
     """
+    return spotify_api_wrapper.current_playback_state().json()['device']
+
+
+def get_available_devices() -> dict:
+    """
+    Return currently available devices
+    :return: List of available Device Objects from the Spotify API
+    """
+    devices = spotify_api_wrapper.available_devices().json()
     return NOT_IMPLEMENTED
 
 
@@ -200,7 +210,22 @@ def unpause(uri=None, device: "str dict"=None):
                                 "volume_percent" : 100
                             }
     """
-    return NOT_IMPLEMENTED
+    if device:
+        if isinstance(device, str):
+            # Assume this is the device_id
+            device_object = spotify_api_wrapper.get_device_by_name(device)
+            device_id = device_object['id']
+            spotify_api_wrapper.unpause(device_id)
+            res = f'Unpaused music playback on {device}'
+        elif isinstance(device, dict):
+            # Assume this is a Device Object retrieved from the Spotify API
+            device_id = device['id']
+            device_name = device['name']
+            spotify_api_wrapper.unpause(device_id)
+            res = f'Unpaused music playback on {device_name}'
+    else:
+        res = 'Unpaused music playback on current active device'
+    return res
 
 
 def skip_forward():
@@ -371,7 +396,7 @@ def music_action(query_result: dict):
         res = pause()
     elif action == 'repeat':
         res = repeat(repeat_mode)
-    elif action == 'resume':
+    elif action == 'unpause':
         res = unpause(uri, device)
     elif action == 'shuffle':
         res = shuffle(shuffle_state)
