@@ -37,11 +37,27 @@ def current_volume():
     return current_playback_state().json()['device']['volume_percent']
 
 
-def current_device():
+def available_devices():
     """
-    Get the user's current information
+    Get the user's currently available devices
     """
-    return current_playback_state().json()['device']
+    res = spotify_oauth2_session.get('https://api.spotify.com/v1/me/player/devices')
+    return res
+
+
+def get_device_by_name(device_name: str) -> dict:
+    """
+    Get the name of the device that has name equivalent to ```device_name```.
+    :returns    dict - Spotify Device Object that has name equivalent to ```device_name```
+                None - device_name was not found in the currently available list
+    """
+    device_name = device_name.replace(' ', '').replace('-', '').lower()
+    devices = available_devices().json()
+    for device in devices['devices']:
+        if device['name'].replace(' ', '').replace('-', '').lower() == device_name \
+                or device['id'] == device_name:
+            return device
+    return None
 
 
 @property
@@ -152,6 +168,19 @@ def play(value: str, type_: str='artist', device: "str, dict"=None):
 
 def pause():
     res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/pause')
+    return res
+
+
+def unpause(device_id: str=None):
+    """
+    Unpause music playback.
+    :param device_id:   The id of the device on which music playback should be unpaused.
+                        If not supplied, current active device is the target
+    """
+    params = dict()
+    if device_id:
+        params['device_id'] = device_id
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', params=params)
     return res
 
 
