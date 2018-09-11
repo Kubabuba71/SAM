@@ -276,7 +276,8 @@ def weather_action(query_result: dict):
                     res = get_weather_summary_for_day(datetime_object, coordinates)
 
             else:
-                raise InvalidDataFormat(f'The given datetime format is invalid: {datetime_}')
+                res = f'The given datetime format is invalid: {datetime_}'
+                # raise InvalidDataFormat(f'The given datetime format is invalid: {datetime_}')
 
     elif date:
         # Get the weather for a specific date
@@ -294,4 +295,5 @@ def weather_action(query_result: dict):
     if res:
         return res
     else:
-        raise InvalidDataFormat(f'Specified date-time is invalid: {date_time}')
+        return f'Specified date-time is invalid: {date_time}'
+        # raise InvalidDataFormat(f'Specified date-time is invalid: {date_time}')

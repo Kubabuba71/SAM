@@ -3,7 +3,7 @@ import json
 from . import spotify_oauth2_session
 from .constants import (NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE,
                         SPOTIFY_WRAPPER_STR)
-from .exceptions import SpotifyPlaylistNotfoundError
+from .exceptions import SpotifyPlaylistNotfoundError, InvalidDataType
 from .utils import log, now_str
 
 with open(SPOTIFY_PLAYLISTS_FILE) as file_:
@@ -59,6 +59,33 @@ def get_device_by_name(device_name_in: str) -> dict:
                 or device['id'] == device_name_in:
             return device
     return None
+
+
+def get_device_object(device_in: "str dict") -> dict:
+    """
+    Give the ID or Name of a device, return the Spotify Device Object
+    :param device_in:   str -> Name or ID of the device in question
+                        dict-> Spotify Device Object (in this case,
+                        this function acts as a small validation check)
+    """
+    if isinstance(device_in, str):
+        # Have to determine if it is an ID or the name of the device
+        devices_json = available_devices().json()
+        for device in devices_json['devices']:
+            if device['id'] == device_in:
+                # device_in is the id of the device
+
+                break
+        else:
+            # device_in is the name of the device (assumed)
+            device = get_device_by_name(device_in)
+    elif isinstance(device_in, dict):
+        assert 'id' in device_in and 'name' in device_in
+        return device_in
+    else:
+        raise InvalidDataType(f'The type of `device_in` is invalid: '
+                              f'{type(device_in).__name__}')
+    return device
 
 
 @property
@@ -154,13 +181,16 @@ def shuffle(shuffle_mode: bool):
     return res
 
 
-def transfer_to_device(device_id: str, play_: bool=True):
+def transfer_to_device(device: "str dict", play_: bool=True):
     """
     Transfer current music playback to ```device_object```
-    :param device_id:       The ID of the device to transfer music playback to
-    :param play_:           True -> ensure playback happens on new device
-                            False-> keep the current playback state.
+    :param device:      str -> the name or ID of the device
+                        dict -> Device Object retrieved from the Spotify API
+    :param play_:       True -> ensure playback happens on new device
+                        False-> keep the current playback state.
     """
+    device_object = get_device_object(device)
+    device_id = device_object['id']
     data = {
         'device_ids': [device_id],
         'play': play_
@@ -174,41 +204,49 @@ def play(value: str, type_: str='artist', device: "str, dict"=None):
     Attempt to play the specified value, based on type_
     :param value: The value to search for and ultimately play (song name, artist name, album name, playlist name)
     :param type_: (song, artist, album, playlist)
-    :param device: The device to play one - device_name or device_dict(from Spotify API)
+    :param device: (from Spotify API)
 
     :returns: requests.Response
     """
     if type_ not in valid_types:
         raise ValueError('invalid type_ value passed. Valid types: "song", "album", "track", "playlist"')
 
-    if device is None:
-        # Play on the currently active device
-        if type_ == 'playlist':
-            uri = get_playlist_uri(value)
-        else:
-            json_data = get_uri(value, type_).json()
-            if type_ == 'artist':
-                uri = json_data['artists']['items'][0]['uri']
-            elif type_ == 'album':
-                uri = json_data['albums']['items'][0]['uri']
-            elif type_ == 'track':
-                uri = json_data['tracks']['items'][0]['uri']
-    else:
+    params = dict()
+
+    if device:
         # Play on a specific device
-        return NOT_IMPLEMENTED
+        device_object = get_device_object(device)
+        device_id = device_object['id']
+        params['device_id'] = device_id
+
+    # Play on the currently active device
+    if type_ == 'playlist':
+        uri = get_playlist_uri(value)
+    else:
+        json_data = get_uri(value, type_).json()
+        if type_ == 'artist':
+            uri = json_data['artists']['items'][0]['uri']
+        elif type_ == 'album':
+            uri = json_data['albums']['items'][0]['uri']
+        elif type_ == 'track':
+            uri = json_data['tracks']['items'][0]['uri']
 
     if type_ == 'track':
         # Play a track
-        data = json.dumps({
+        data = {
             'uris': [uri]
-        })
-        res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', data=data)
+        }
+        res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play',
+                                         json=data,
+                                         params=params)
     else:
         # Play an artist/album/playlist
-        data = json.dumps({
+        data = {
             'context_uri': uri
-        })
-        res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', data=data)
+        }
+        res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play',
+                                         json=data,
+                                         params=params)
     return res
 
 
@@ -217,16 +255,11 @@ def pause():
     return res
 
 
-def unpause(device_id: str=None):
+def unpause():
     """
-    Unpause music playback.
-    :param device_id:   The id of the device on which music playback should be unpaused.
-                        If not supplied, current active device is the target
+    Un-pause music playback on the currently active device
     """
-    params = dict()
-    if device_id:
-        params['device_id'] = device_id
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play', params=params)
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play')
     return res
 
 
