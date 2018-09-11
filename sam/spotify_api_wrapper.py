@@ -142,6 +142,17 @@ def repeat(mode):
     return res
 
 
+def shuffle(shuffle_mode: bool):
+    """
+    Set shuffle mode to ```shuffle_mode```
+    """
+    params = {
+        'state': shuffle_mode
+    }
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/shuffle', params=params)
+    return res
+
+
 def play(value: str, type_: str='artist', device: "str, dict"=None):
     """
     Attempt to play the specified value, based on type_
