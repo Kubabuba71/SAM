@@ -1,6 +1,6 @@
 from . import spotify_api_wrapper
 from .constants import NOT_IMPLEMENTED
-from .exceptions import InvalidDataFormat
+from .exceptions import InvalidDataFormat, InvalidDataValue
 from .utils import normalize_volume_value
 
 
@@ -217,8 +217,16 @@ def shuffle(shuffle_state=False):
                             str -  'on',  'true'   map to True
                                    'off', 'false' map to False
     """
-    # return f'Shuffle state set to: {shuffle_state}'
-    return NOT_IMPLEMENTED
+    if isinstance(shuffle_state, str):
+        if shuffle_state == 'on':
+            shuffle_state = True
+        elif shuffle_state == 'off':
+            shuffle_state = False
+        else:
+            raise InvalidDataValue(f"shuffle_state value is invalid: {shuffle_state}. "
+                                   f"Valid values are: 'on', 'off', true, false")
+    spotify_api_wrapper.shuffle(shuffle_state)
+    return f'Shuffle state set to {shuffle_state}'
 
 
 def transfer_to_device(device: "str dict"):
