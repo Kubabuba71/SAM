@@ -156,8 +156,8 @@ def unskip():
     """"
     Unskip the currently playing song
     """
-    # return 'Playing previous track'
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.unskip()
+    return 'Playing previous track'
 
 
 def repeat(mode='track'):

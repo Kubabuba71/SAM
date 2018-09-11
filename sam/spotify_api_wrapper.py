@@ -101,17 +101,17 @@ def get_uri(input_, type_='track'):
     return res
 
 
-def get_playlist_uri(input_):
-    if input_ in spotify_playlists:
-        uri = spotify_playlists[input_]
+def get_playlist_uri(playlist):
+    if playlist in spotify_playlists:
+        uri = spotify_playlists[playlist]
     else:
-        log(f'{now_str()}-DEBUG{SPOTIFY_WRAPPER_STR}: {input_} playlist not in spotify_playlists.json. '
+        log(f'{now_str()}-DEBUG{SPOTIFY_WRAPPER_STR}: {playlist} playlist not in spotify_playlists.json. '
             f'Connecting to Spotify API')
-        json_data = get_uri(input_, 'playlist').json()
+        json_data = get_uri(playlist, 'playlist').json()
         try:
             uri = json_data['playlists']['items'][0]['uri']
         except IndexError:
-            raise SpotifyPlaylistNotfoundError(f'{input_} playlist not found anywhere. Yikes.')
+            raise SpotifyPlaylistNotfoundError(f'{playlist} playlist not found anywhere. Yikes.')
     return uri
 
 
@@ -120,6 +120,14 @@ def skip_forward():
     Skip the currently playing song
     """
     res = spotify_oauth2_session.post('https://api.spotify.com/v1/me/player/next')
+    return res
+
+
+def unskip():
+    """
+    Play the previous song
+    """
+    res = spotify_oauth2_session.post('https://api.spotify.com/v1/me/player/previous')
     return res
 
 

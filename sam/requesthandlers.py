@@ -26,7 +26,7 @@ def handle_sam_request(json_data: dict) -> dict:
     if action.startswith('music'):
         res = music_action(json_data)
     elif action.startswith('calendar'):
-        res = calender_action()
+        res = calender_action(json_data)
     elif action.startswith('weather'):
         res = weather_action(json_data)
     else:
