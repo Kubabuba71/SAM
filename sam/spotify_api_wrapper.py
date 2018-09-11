@@ -45,17 +45,18 @@ def available_devices():
     return res
 
 
-def get_device_by_name(device_name: str) -> dict:
+def get_device_by_name(device_name_in: str) -> dict:
     """
-    Get the name of the device that has name equivalent to ```device_name```.
+    Get the device that has name equivalent to ```device_name_in```.
     :returns    dict - Spotify Device Object that has name equivalent to ```device_name```
                 None - device_name was not found in the currently available list
     """
-    device_name = device_name.replace(' ', '').replace('-', '').lower()
+    device_name_in = device_name_in.replace(' ', '').replace('-', '').lower()
     devices = available_devices().json()
     for device in devices['devices']:
-        if device['name'].replace(' ', '').replace('-', '').lower() == device_name \
-                or device['id'] == device_name:
+        device_name = device['name'].replace(' ', '').replace('-', '').lower()
+        if device_name == device_name_in \
+                or device['id'] == device_name_in:
             return device
     return None
 
@@ -150,6 +151,21 @@ def shuffle(shuffle_mode: bool):
         'state': shuffle_mode
     }
     res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/shuffle', params=params)
+    return res
+
+
+def transfer_to_device(device_id: str, play_: bool=True):
+    """
+    Transfer current music playback to ```device_object```
+    :param device_id:       The ID of the device to transfer music playback to
+    :param play_:           True -> ensure playback happens on new device
+                            False-> keep the current playback state.
+    """
+    data = {
+        'device_ids': [device_id],
+        'play': play_
+    }
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player', json=data)
     return res
 
 

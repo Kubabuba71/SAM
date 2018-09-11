@@ -1,6 +1,5 @@
 from . import spotify_api_wrapper
-from .constants import NOT_IMPLEMENTED
-from .exceptions import InvalidDataFormat, InvalidDataValue
+from .exceptions import InvalidDataFormat, InvalidDataType, InvalidDataValue
 from .utils import normalize_volume_value
 
 
@@ -229,13 +228,34 @@ def shuffle(shuffle_state=False):
     return f'Shuffle state set to {shuffle_state}'
 
 
-def transfer_to_device(device: "str dict"):
+def transfer_to_device(device_in: "str dict"):
     """
-    Transfer current song to specified device
-    :param device:  The device to which music playback should be transferred to.
+    Transfer current playback to specified device
+    :param device_in:  The device to which music playback should be transferred to.
+                    str -> the name or ID of the device
+                    dict -> Device Object retrieved from the Spotify API
     """
-    # return f'Music playback transfered to {indeviceput_device}'
-    return NOT_IMPLEMENTED
+    if isinstance(device_in, str):
+        # Have to determine if it is an ID or the name of the device
+        devices_json = spotify_api_wrapper.available_devices().json()
+        for device in devices_json['devices']:
+            if device['id'] == device_in:
+                # device_in is the id of the device
+                device_id = device['id']
+                device_name = device['name']
+                break
+        else:
+            # device_in is the name of the device (assumed)
+            device = spotify_api_wrapper.get_device_by_name(device_in)
+            device_id = device['id']
+            device_name = device['name']
+    elif isinstance(device_in, dict):
+        device_id = device_in['id']
+        device_name = device_in['name']
+    else:
+        raise InvalidDataType(f'The value for `device_in` is invalid: {type(device_in).__name__}')
+    spotify_api_wrapper.transfer_to_device(device_id)
+    return f'Music playback transfered to {device_name}'
 
 
 def music_action(query_result: dict):
