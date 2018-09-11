@@ -74,6 +74,10 @@ def test_all_get_endpoint():
         with open(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, file)) as raw_json_data:
             sample_request_data = json.load(raw_json_data)
         response = handle_sam_request(sample_request_data)
+        if isinstance(response, str):
+            response = {
+                'response': response
+            }
         response['purpose'] = sample_request_data['purposeShort']
         responses[file] = response
     return jsonify(responses)

@@ -1,0 +1,12 @@
+{
+    "queryResult": {
+      "queryText": "Play Northlane on KUBA-PC",
+      "action": "music.play",
+      "parameters": {
+        "artist": "Northlane",
+        "device": "KUBA-PC"
+      }
+    },
+  "purposeOfRequest": "The purpose of this request, is to play the specified artist on the specified device",
+  "purposeShort": "Play specified artist (Northlane) on specified device (KUBA-PC)"
+}
