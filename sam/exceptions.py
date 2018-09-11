@@ -34,6 +34,23 @@ class InvalidDataFormat(SamException):
         super().__init__(message, status_code, payload)
 
 
+class InvalidDataType(SamException):
+    """
+    The type of the data is invalid
+    """
+
+    def __init__(self, message, status_code=None, payload=None):
+        super().__init__(message, status_code, payload)
+
+
+class InvalidDataValue(SamException):
+    """
+    The value of the data is invalid
+    """
+    def __init__(self, message, status_code=None, payload=None):
+        super().__init__(message, status_code, payload)
+
+
 class NoTokenError(SamException):
     """
     No token was provided when accessing some API
