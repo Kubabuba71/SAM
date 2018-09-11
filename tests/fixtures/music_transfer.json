@@ -1,0 +1,10 @@
+{
+  "queryResult": {
+    "action": "music.transfer",
+    "parameters": {
+      "device": "kuba-pc"
+    }
+  },
+  "purposeOfRequest": "The purpose of this request, is to transfer Spotify playback to your smartphone",
+  "purposeShort": "Resume Spotify playback on smartphone"
+}
