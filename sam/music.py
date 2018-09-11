@@ -164,9 +164,10 @@ def repeat(mode='track'):
     """
     Turn on/off repeat
     :param mode:    Determines what repeat mode is used. By default, it repeats the current track.
+                    Valid values: 'track', 'context' or 'off'
     """
-    # return f'Repeat turned on with mode: {mode}'
-    return NOT_IMPLEMENTED
+    spotify_api_wrapper.repeat(mode)
+    return f'Repeat changed to {mode} mode'
 
 
 def volume_increase(volume_amount=10):
@@ -268,7 +269,7 @@ def music_action(query_result: dict):
         song = parameters.get('song', None)
         playlist = parameters.get('playlist', None)
         device = parameters.get('device', None)
-        repeat_mode = parameters.get('repeat', None)
+        repeat_mode = parameters.get('repeat_mode', None)
         shuffle_state = parameters.get('shuffle', None)
 
     # These parameters need to be set to None at the very least

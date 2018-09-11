@@ -131,6 +131,17 @@ def unskip():
     return res
 
 
+def repeat(mode):
+    """
+    Set repeat mode to ```mode```
+    """
+    params = {
+        'state': mode
+    }
+    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/repeat', params=params)
+    return res
+
+
 def play(value: str, type_: str='artist', device: "str, dict"=None):
     """
     Attempt to play the specified value, based on type_
