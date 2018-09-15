@@ -1,22 +1,32 @@
 import json
 
-from . import spotify_oauth2_session
-from .constants import (NOT_IMPLEMENTED, SPOTIFY_PLAYLISTS_FILE,
-                        SPOTIFY_WRAPPER_STR)
-from .exceptions import SpotifyPlaylistNotfoundError, InvalidDataType
-from .utils import log, now_str
+from ..constants import (SPOTIFY_BASE_AUTHORIZATION_URL, SPOTIFY_CLIENT_ID,
+                         SPOTIFY_CLIENT_SECRET, SPOTIFY_PLAYLISTS_FILE,
+                         SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPE,
+                         SPOTIFY_TOKEN_URL, SPOTIFY_WRAPPER_STR)
+from ..exceptions import InvalidDataType, SpotifyPlaylistNotfoundError
+from ..sessions.oauth2 import Session
+from ..utils import log, now_str
 
 with open(SPOTIFY_PLAYLISTS_FILE) as file_:
     spotify_playlists: dict = json.load(file_)
 
 valid_types = ['artist', 'album', 'track', 'playlist']
+oauth2 = Session(client_id=SPOTIFY_CLIENT_ID,
+                 client_secret=SPOTIFY_CLIENT_SECRET,
+                 redirect_uri=SPOTIFY_REDIRECT_URI,
+                 token_uri=SPOTIFY_TOKEN_URL,
+                 authorization_uri=SPOTIFY_BASE_AUTHORIZATION_URL,
+                 scope=SPOTIFY_SCOPE,
+                 state=SPOTIFY_WRAPPER_STR,
+                 component='Spotify')
 
 
 def current_playback_state():
     """
     Get information about the user's current playback state, including track, track progress and active device'
     """
-    res = spotify_oauth2_session.get('https://api.spotify.com/v1/me/player')
+    res = oauth2.get('https://api.spotify.com/v1/me/player')
     return res
 
 
@@ -26,7 +36,7 @@ def currently_playing():
 
     :returns: requests.Response
     """
-    res = spotify_oauth2_session.get('https://api.spotify.com/v1/me/player/currently-playing')
+    res = oauth2.get('https://api.spotify.com/v1/me/player/currently-playing')
     return res
 
 
@@ -41,7 +51,7 @@ def available_devices():
     """
     Get the user's currently available devices
     """
-    res = spotify_oauth2_session.get('https://api.spotify.com/v1/me/player/devices')
+    res = oauth2.get('https://api.spotify.com/v1/me/player/devices')
     return res
 
 
@@ -88,35 +98,11 @@ def get_device_object(device_in: "str dict") -> dict:
     return device
 
 
-@property
-def oauth2_session():
-    return spotify_oauth2_session
-
-
-def login():
-    """
-    Generate an authorization url to authorize your app to connect to the Spotify API,
-    and access user resources, and return the authorization url
-    """
-    authorization_url, state = spotify_oauth2_session.authorization_url()
-    return authorization_url
-
-
-def callback(callback_url):
-    """
-    Fetch an access token, based on the callback_url
-
-    :param callback_url: The callback url returned by the Spotify API,
-                         after the user authorized (or denied) access to their account
-    """
-    spotify_oauth2_session.fetch_token(callback_url)
-
-
 def token_info():
     """
     Return current token info for the OAuth2Session
     """
-    res = spotify_oauth2_session.oauth2_session.token
+    res = oauth2.oauth2_session.token
     return res
 
 
@@ -125,7 +111,7 @@ def get_uri(input_, type_='track'):
         'q': input_,
         'type': type_
     }
-    res = spotify_oauth2_session.get('https://api.spotify.com/v1/search', params=payload)
+    res = oauth2.get('https://api.spotify.com/v1/search', params=payload)
     return res
 
 
@@ -147,7 +133,7 @@ def skip_forward():
     """
     Skip the currently playing song
     """
-    res = spotify_oauth2_session.post('https://api.spotify.com/v1/me/player/next')
+    res = oauth2.post('https://api.spotify.com/v1/me/player/next')
     return res
 
 
@@ -155,7 +141,7 @@ def unskip():
     """
     Play the previous song
     """
-    res = spotify_oauth2_session.post('https://api.spotify.com/v1/me/player/previous')
+    res = oauth2.post('https://api.spotify.com/v1/me/player/previous')
     return res
 
 
@@ -166,7 +152,7 @@ def repeat(mode):
     params = {
         'state': mode
     }
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/repeat', params=params)
+    res = oauth2.put('https://api.spotify.com/v1/me/player/repeat', params=params)
     return res
 
 
@@ -177,7 +163,7 @@ def shuffle(shuffle_mode: bool):
     params = {
         'state': shuffle_mode
     }
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/shuffle', params=params)
+    res = oauth2.put('https://api.spotify.com/v1/me/player/shuffle', params=params)
     return res
 
 
@@ -195,7 +181,7 @@ def transfer_to_device(device: "str dict", play_: bool=True):
         'device_ids': [device_id],
         'play': play_
     }
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player', json=data)
+    res = oauth2.put('https://api.spotify.com/v1/me/player', json=data)
     return res
 
 
@@ -236,22 +222,22 @@ def play(value: str, type_: str='artist', device: "str, dict"=None):
         data = {
             'uris': [uri]
         }
-        res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play',
-                                         json=data,
-                                         params=params)
+        res = oauth2.put('https://api.spotify.com/v1/me/player/play',
+                         json=data,
+                         params=params)
     else:
         # Play an artist/album/playlist
         data = {
             'context_uri': uri
         }
-        res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play',
-                                         json=data,
-                                         params=params)
+        res = oauth2.put('https://api.spotify.com/v1/me/player/play',
+                         json=data,
+                         params=params)
     return res
 
 
 def pause():
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/pause')
+    res = oauth2.put('https://api.spotify.com/v1/me/player/pause')
     return res
 
 
@@ -259,7 +245,7 @@ def unpause():
     """
     Un-pause music playback on the currently active device
     """
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/play')
+    res = oauth2.put('https://api.spotify.com/v1/me/player/play')
     return res
 
 
@@ -275,7 +261,7 @@ def set_volume(volume_percent: int=50, device_id: str=None):
     }
     if device_id:
         params['device_id'] = device_id
-    res = spotify_oauth2_session.put('https://api.spotify.com/v1/me/player/volume', params=params)
+    res = oauth2.put('https://api.spotify.com/v1/me/player/volume', params=params)
     return res
 
 
@@ -283,5 +269,5 @@ def add_to_playlist(song_uri, playlist_id):
     params = {
         'uris': song_uri
     }
-    res = spotify_oauth2_session.post(f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks', params=params)
+    res = oauth2.post(f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks', params=params)
     return res

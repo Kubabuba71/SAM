@@ -6,14 +6,12 @@ from string import ascii_uppercase, digits
 from flask import Flask, make_response, redirect, request, send_file
 from flask.json import jsonify
 
-from . import spotify_api_wrapper
 from .constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                         STATIC_FILES_DIRECTORY)
-from .dialogflow_api_wrapper import make_query
 from .exceptions import SamException
-from .music import current_song, music_action
 from .requesthandlers import handle_sam_request
-from .weather import weather_action
+from .wrappers import calendar_, spotify
+from .wrappers.dialogflow import make_query
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', ''.join(choices(ascii_uppercase + digits, k=12)))
@@ -83,12 +81,12 @@ def test_all_get_endpoint():
     return jsonify(responses)
 
 
-@app.route("/login", methods=['GET'])
+@app.route("/spotify_login", methods=['GET'])
 def login_get_endpoint():
     """
     Generic authorization request for the Spotify API
     """
-    authorization_url = spotify_api_wrapper.login()
+    authorization_url, state = spotify.oauth2.authorization_url()
     return redirect(authorization_url)
 
 
@@ -97,8 +95,8 @@ def spotify_callback_get_endpoint():
     """
     Generic authorization callback for the Spotify API
     """
-    spotify_api_wrapper.callback(request.url)
-    return 'Token has been fetched and saved'
+    spotify.oauth2.fetch_token(request.url)
+    return 'Spotify Token has been fetched and saved'
 
 
 @app.route("/current_song", methods=['GET'])
@@ -106,13 +104,13 @@ def current_song_json_get_endpoint():
     """
     Return current Spotify playback information
     """
-    res = spotify_api_wrapper.currently_playing().json()
+    res = spotify.currently_playing().json()
     return jsonify(res)
 
 
 @app.route('/spotify_token_info', methods=['GET'])
 def spotify_token_info_get_endpoint():
-    res = spotify_api_wrapper.token_info()
+    res = spotify.token_info()
     return jsonify(res)
 
 
@@ -126,6 +124,33 @@ def static_file_get_endpoint(filename):
 def query_post_endpoint():
     res = make_query(request.get_json().get('query'))
     return res['result']['fulfillment']['speech']
+
+
+@app.route('/calendar_login', methods=['GET'])
+def calendar_login_get_endpoint():
+    """
+    Generic authorization request for the Google Calendar API
+    """
+    authorization_url, state = calendar_.oauth2.authorization_url()
+    return redirect(authorization_url)
+
+
+@app.route('/calendar_callback', methods=['GET'])
+def calendar_callback_get_endpoint():
+    """
+    Generic authorization callback for the Google Calendar API
+    """
+    calendar_.oauth2.fetch_token(request.url)
+    return 'Google Calendar Token has been fetched and saved'
+
+
+@app.route('/calendar_events', methods=['GET'])
+def calender_events_get_endpoint():
+    """
+    Get upcoming events
+    """
+    res = calendar_.get_events()
+    return jsonify(res)
 
 
 if __name__ == "__main__":

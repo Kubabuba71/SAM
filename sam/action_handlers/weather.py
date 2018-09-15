@@ -1,6 +1,3 @@
-"""
-Return various weather forecast, using ISO-8601 datetime format
-"""
 import json
 import logging
 from copy import deepcopy
@@ -8,11 +5,11 @@ from datetime import datetime
 
 from dateutil import parser as date_parser
 
-from . import web_session
-from .constants import (DARK_SKY_KEY, DARK_SKY_URL, GOOGLE_MAPS_GEOCODE_KEY,
-                        GOOGLE_MAPS_GEOCODE_URL, GOOGLE_MAPS_TIMEZONE_KEY,
-                        GOOGLE_MAPS_TIMEZONE_URL, WEATHER_PARAMETERS)
-from .exceptions import InvalidDataFormat
+from .. import web_session
+from ..constants import (DARK_SKY_KEY, DARK_SKY_URL, GOOGLE_MAPS_GEOCODE_KEY,
+                         GOOGLE_MAPS_GEOCODE_URL, GOOGLE_MAPS_TIMEZONE_KEY,
+                         GOOGLE_MAPS_TIMEZONE_URL, WEATHER_PARAMETERS)
+from ..exceptions import InvalidDataFormat
 
 log = logging.getLogger(__name__)
 
