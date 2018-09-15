@@ -116,6 +116,7 @@ def get_uri(input_, type_='track'):
 
 
 def get_playlist_uri(playlist):
+    playlist = playlist.strip().lower()
     if playlist in spotify_playlists:
         uri = spotify_playlists[playlist]
     else:
