@@ -1,7 +1,7 @@
-from .calendar_ import calender_action
+from .action_handlers.calendar_ import calender_action
+from .action_handlers.music import music_action
+from .action_handlers.weather import weather_action
 from .exceptions import InvalidDataFormat
-from .music import music_action
-from .weather import weather_action
 
 
 def handle_sam_request(json_data: dict) -> dict:

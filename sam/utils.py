@@ -37,9 +37,9 @@ def now_str():
     return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
 
 
-def spotify_check_status_code(func):
-    def decorated(*args, **kwargs):
-        res: Response = func(*args, **kwargs)
+def verify_status_code(func):
+    def decorated(*args, **kwargs) -> Response:
+        res = func(*args, **kwargs)
         if res.status_code == 401:
             # No token provided
             raise NoTokenError('SAM does not have a token to connect to Spotify with', res.status_code)
@@ -47,5 +47,15 @@ def spotify_check_status_code(func):
             raise SamException(f'Error during a {res.request.method} to {res.request.url}',
                                status_code=res.status_code,
                                payload=res.text)
+        return res
+    return decorated
+
+
+def log_url(func):
+    def decorated(*args, **kwargs) -> Response:
+        res = func(*args, **kwargs)
+        url = res.url
+        method = res.request.method
+        log(f'{now_str()}-DEBUG_SAM: {method} {url}')
         return res
     return decorated
