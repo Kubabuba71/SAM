@@ -4,11 +4,12 @@ import platform
 
 import pytest
 
-if not os.getcwd().endswith('tests'):
-    fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), 'tests'))
-    fixtures_dir = os.path.abspath(os.path.join(fixtures_dir, 'fixtures'))
+if os.getcwd().endswith('tests'):
+    fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
 else:
-    fixtures_dir = os.path.abspath(os.path.join(os.getcwd(), 'fixtures'))
+    fixtures_dir = os.path.abspath(os.getcwd())
+fixtures_dir = os.path.abspath(os.path.join(fixtures_dir, 'static'))
+fixtures_dir = os.path.abspath(os.path.join(fixtures_dir, 'sample_dialogflow_requests'))
 
 
 def open_file(param):
