@@ -23,5 +23,5 @@
     ]
   },
   "purposeOfRequest": "The purpose of this request, is to retrieve the current weather for the specified location",
-  "purposeShort": "current weather for location"
+  "purposeShort": "Current weather for location"
 }

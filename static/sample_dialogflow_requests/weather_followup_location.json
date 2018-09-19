@@ -23,5 +23,5 @@
     ]
   },
   "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified location, using same date of a previous request",
-  "purposeShort": "weather for location based on previous request"
+  "purposeShort": "Weather for location based on previous request"
 }

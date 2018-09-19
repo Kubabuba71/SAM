@@ -13,7 +13,7 @@ DAYLIGHT_SAVINGS = True
 
 WEATHER_PARAMETERS = ['currently', 'minutely', 'hourly', 'daily', 'alerts', 'flags']
 
-# Constants related to the Spotify web API
+# Constants related to the Spotify API
 
 SPOTIFY_CLIENT_ID = os.environ['SPOTIFY_CLIENT_ID']
 SPOTIFY_CLIENT_SECRET = os.environ['SPOTIFY_CLIENT_SECRET']

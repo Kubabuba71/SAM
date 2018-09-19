@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import time
 
 from requests import Response
 
@@ -59,3 +60,16 @@ def log_url(func):
         log(f'{now_str()}-DEBUG_SAM: {method} {url}')
         return res
     return decorated
+
+
+class Timer:
+    def __enter__(self,):
+        self.start = time()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.finish = time()
+        return self
+
+    def response_time(self):
+        return self.finish - self.start

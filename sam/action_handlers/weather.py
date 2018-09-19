@@ -5,13 +5,14 @@ from datetime import datetime
 
 from dateutil import parser as date_parser
 
-from .. import web_session
 from ..constants import (DARK_SKY_KEY, DARK_SKY_URL, GOOGLE_MAPS_GEOCODE_KEY,
                          GOOGLE_MAPS_GEOCODE_URL, GOOGLE_MAPS_TIMEZONE_KEY,
                          GOOGLE_MAPS_TIMEZONE_URL, WEATHER_PARAMETERS)
-from ..exceptions import InvalidDataFormat
+from ..sessions.web import WebSession
 
 log = logging.getLogger(__name__)
+
+web = WebSession()
 
 
 def generate_darksky_url(coordinates):
@@ -41,7 +42,7 @@ def get_coordinates(location):
         'address': location,
         'key': GOOGLE_MAPS_GEOCODE_KEY
     }
-    json_data = web_session.get_json(GOOGLE_MAPS_GEOCODE_URL, params=params)
+    json_data = web.get_json(GOOGLE_MAPS_GEOCODE_URL, params=params)
     coordinates = json_data['results'][0]['geometry']['location']
     coordinates['lng'] = round(coordinates['lng'], 7)
     coordinates['lat'] = round(coordinates['lat'], 7)
@@ -78,7 +79,7 @@ def get_offset_from_utc(coordinates):
               'location': location_param,
               'timestamp': current_epoch_time}
 
-    json_data = web_session.get_json(GOOGLE_MAPS_TIMEZONE_URL, params=params)
+    json_data = web.get_json(GOOGLE_MAPS_TIMEZONE_URL, params=params)
     return json_data['dstOffset'] + json_data['rawOffset']
 
 
@@ -100,7 +101,7 @@ def get_weather_data(coordinates, include=None):
         for param in include:
             weather_parameters.remove(param)
         params['exclude'] = ','.join(weather_parameters)
-    return web_session.get_json(url, params=params)
+    return web.get_json(url, params=params)
 
 
 def generate_summary(json_data, index=None):

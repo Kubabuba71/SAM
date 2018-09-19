@@ -2,7 +2,7 @@ from .action_handlers.calendar_ import calender_action
 from .action_handlers.music import music_action
 from .action_handlers.weather import weather_action
 from .exceptions import InvalidDataFormat
-
+from .utils import log
 
 def handle_sam_request(json_data: dict) -> dict:
     """
@@ -31,5 +31,5 @@ def handle_sam_request(json_data: dict) -> dict:
         res = weather_action(json_data)
     else:
         raise InvalidDataFormat(f'action is not supported: {action}')
-
+    log(action)
     return res
