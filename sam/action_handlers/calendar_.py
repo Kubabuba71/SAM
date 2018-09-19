@@ -1,6 +1,22 @@
 from ..exceptions import InvalidDataFormat
 from ..wrappers import calendar_
 from dateutil import parser as date_parser
+from datetime import datetime
+
+
+def get_next_event() -> str:
+    """
+    Get the summary for the next event
+    """
+    now = datetime.utcnow().isoformat()
+    if not now.endswith('Z') and '+' not in now:
+        now += 'Z'
+    events = calendar_.get_events(time_min=now)
+    if len(events) == 0:
+        res = 'No upcoming events planned'
+    else:
+        res = generate_event_summary(events[0], specify_day=True)
+    return res
 
 
 def get_events_summary(date_: str) -> str:
@@ -14,9 +30,8 @@ def get_events_summary(date_: str) -> str:
     date_start = date_
     # date_end will be 23:59:59 hours ahead of date_start
     date_end = date_parser.parse(date_).replace(hour=23, minute=59, second=59).isoformat()
-    events = calendar_.get_events(calendar_id='primary',
-                                  date_start=date_start,
-                                  date_end=date_end)
+    events = calendar_.get_events(time_min=date_start,
+                                  time_max=date_end)
 
     if len(events) == 0:
         res = date_parser.parse(date_).strftime('No events planned for %B %d')
@@ -25,7 +40,7 @@ def get_events_summary(date_: str) -> str:
     return res
 
 
-def generate_event_summary(event: dict) -> str:
+def generate_event_summary(event: dict, specify_day: bool=False) -> str:
     """
     Generate a summary for a given event. Summary is simply the place, time and name of the event
 
@@ -38,7 +53,8 @@ def generate_event_summary(event: dict) -> str:
     summary = event.get('summary')
 
     res = f'{summary} from {start} until {end}'
-
+    if specify_day:
+        res += date_parser.parse(event['start']['dateTime']).strftime(' on %A')
     if location:
         res += f' at {location}'
 
@@ -73,5 +89,6 @@ def calender_action(query_result):
 
     if action == 'generic':
         res = get_events_summary(date)
-
+    elif action == 'next':
+        res = get_next_event()
     return res
