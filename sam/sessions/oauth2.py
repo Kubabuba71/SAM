@@ -1,9 +1,10 @@
+from requests import Response
 from requests_oauthlib import OAuth2Session as OAuth2Session_
 
 from ..utils import log, log_url, now_str, verify_status_code
 
 
-class Session:
+class OAuth2Session:
     def __init__(self,
                  client_id=None,
                  client_secret=None,
@@ -32,23 +33,23 @@ class Session:
 
     @verify_status_code
     @log_url
-    def get(self, url, data=None, params=None, **kwargs):
+    def get(self, url: str, data: dict=None, params: dict=None, **kwargs) -> Response:
         return self._session.get(url, data=data, params=params, **kwargs)
 
     @verify_status_code
     @log_url
-    def post(self, url, data=None, params=None, **kwargs):
+    def post(self, url: str, data: dict=None, params: dict=None, **kwargs)-> Response:
         return self._session.post(url, data=data, params=params, **kwargs)
 
     @verify_status_code
     @log_url
-    def put(self, url, data=None, params=None, **kwargs):
+    def put(self, url: str, data: dict=None, params: dict=None, **kwargs) -> Response:
         return self._session.put(url, data=data, params=params, **kwargs)
 
     def authorization_url(self):
         authorization_url_, state = self._session.authorization_url(self.authorization_uri)
         log(f'{now_str()}-DEBUG{self.state}: Generating {self.component} Authorization URL: {authorization_url_}')
-        return authorization_url_, state
+        return authorization_url_
 
     def fetch_token(self, authorization_response_):
         log(f'{now_str()}-DEBUG{self.state}: Fetching new {self.component} Token')

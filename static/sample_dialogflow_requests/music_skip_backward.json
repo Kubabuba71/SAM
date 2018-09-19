@@ -4,5 +4,5 @@
     "parameters": {}
   },
   "purposeOfRequest": "The purpose of this request, is to unskip the currently playing song in Spotify",
-  "purposeShort": "unskip currently playing Spotify song"
+  "purposeShort": "Unskip currently playing Spotify song"
 }

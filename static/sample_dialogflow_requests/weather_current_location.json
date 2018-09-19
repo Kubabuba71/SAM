@@ -27,5 +27,5 @@
     ]
   },
   "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified day, for the specified location",
-  "purposeShort": "weather for day for location"
+  "purposeShort": "Weather for day for location"
 }

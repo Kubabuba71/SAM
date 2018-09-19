@@ -5,21 +5,21 @@ from ..constants import (SPOTIFY_BASE_AUTHORIZATION_URL, SPOTIFY_CLIENT_ID,
                          SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPE,
                          SPOTIFY_TOKEN_URL, SPOTIFY_WRAPPER_STR)
 from ..exceptions import InvalidDataType, SpotifyPlaylistNotfoundError
-from ..sessions.oauth2 import Session
+from ..sessions.oauth2 import OAuth2Session
 from ..utils import log, now_str
 
 with open(SPOTIFY_PLAYLISTS_FILE) as file_:
     spotify_playlists: dict = json.load(file_)
 
 valid_types = ['artist', 'album', 'track', 'playlist']
-oauth2 = Session(client_id=SPOTIFY_CLIENT_ID,
-                 client_secret=SPOTIFY_CLIENT_SECRET,
-                 redirect_uri=SPOTIFY_REDIRECT_URI,
-                 token_uri=SPOTIFY_TOKEN_URL,
-                 authorization_uri=SPOTIFY_BASE_AUTHORIZATION_URL,
-                 scope=SPOTIFY_SCOPE,
-                 state=SPOTIFY_WRAPPER_STR,
-                 component='Spotify')
+oauth2 = OAuth2Session(client_id=SPOTIFY_CLIENT_ID,
+                       client_secret=SPOTIFY_CLIENT_SECRET,
+                       redirect_uri=SPOTIFY_REDIRECT_URI,
+                       token_uri=SPOTIFY_TOKEN_URL,
+                       authorization_uri=SPOTIFY_BASE_AUTHORIZATION_URL,
+                       scope=SPOTIFY_SCOPE,
+                       state=SPOTIFY_WRAPPER_STR,
+                       component='Spotify')
 
 
 def current_playback_state():

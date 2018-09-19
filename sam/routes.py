@@ -7,6 +7,7 @@ from flask.json import jsonify
 from .constants import (SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY,
                         STATIC_FILES_DIRECTORY)
 from .requesthandlers import handle_sam_request
+from .utils import Timer
 from .wrappers import calendar_, dialogflow, spotify
 
 
@@ -49,7 +50,7 @@ def setup_calendar_endpoints(app):
         """
         Generic authorization request for the Google Calendar API
         """
-        authorization_url, state = calendar_.oauth2.authorization_url()
+        authorization_url = calendar_.oauth2.authorization_url()
         return redirect(authorization_url)
 
     @app.route('/calendar_callback', methods=['GET'])
@@ -80,7 +81,7 @@ def setup_music_endpoints(app):
         """
         Generic authorization request for the Spotify API
         """
-        authorization_url, state = spotify.oauth2.authorization_url()
+        authorization_url = spotify.oauth2.authorization_url()
         return redirect(authorization_url)
 
     @app.route("/spotify_callback", methods=['GET'])
@@ -138,17 +139,20 @@ def setup_sample_endpoints(app):
         """
         Test all requests, found in the folder sample_dialogflow_requests
         """
-        responses = {}
-        for file in os.listdir(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY):
-            with open(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, file)) as raw_json_data:
-                sample_request_data = json.load(raw_json_data)
-            response = handle_sam_request(sample_request_data)
-            if isinstance(response, str):
-                response = {
-                    'response': response
-                }
-            response['purpose'] = sample_request_data['purposeShort']
-            responses[file] = response
+        with Timer() as timer:
+            responses = dict()
+            responses['items'] = []
+            for file in os.listdir(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY):
+                with open(os.path.join(SAMPLE_DIALOGFLOW_REQUESTS_DIRECTORY, file)) as raw_json_data:
+                    sample_request_data = json.load(raw_json_data)
+                response = handle_sam_request(sample_request_data)
+                if isinstance(response, str):
+                    response = {
+                        'response': response
+                    }
+                response['purpose'] = sample_request_data['purposeShort']
+                responses['items'].append(response)
+        responses['responseTime'] = timer.response_time()
         return jsonify(responses)
 
     return app
