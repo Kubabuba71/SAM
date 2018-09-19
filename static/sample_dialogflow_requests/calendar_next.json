@@ -1,0 +1,6 @@
+{
+  "queryResult": {
+    "queryText": "Get the next event",
+    "action": "calendar.next"
+  }
+}
