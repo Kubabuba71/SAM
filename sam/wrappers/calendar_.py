@@ -32,8 +32,8 @@ def get_events(calendar_id='primary', time_min: str=None, time_max: str=None,
         'singleEvents': True,
         'orderBy': order_by
     }
-    if kwargs.get('params', None) is not None:
-        params.update(kwargs.get('params'))
+    
+    params.update(kwargs.get('params', dict()))
 
     res_json = oauth2.get(f'https://www.googleapis.com/calendar/v3/calendars/{calendar_id}/events',
                           params=params).json()

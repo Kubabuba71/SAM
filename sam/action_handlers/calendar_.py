@@ -12,7 +12,8 @@ def get_next_event() -> str:
     if not now.endswith('Z') and '+' not in now:
         now += 'Z'
     events = calendar_.get_events(time_min=now)
-    if len(events) == 0:
+
+    if not events:
         res = 'No upcoming events planned'
     else:
         res = generate_event_summary(events[0], specify_day=True)
@@ -33,7 +34,7 @@ def get_events_summary(date_: str) -> str:
     events = calendar_.get_events(time_min=date_start,
                                   time_max=date_end)
 
-    if len(events) == 0:
+    if not events:
         res = date_parser.parse(date_).strftime('No events planned for %B %d')
     else:
         res = '. '.join(generate_event_summary(event) for event in events)
@@ -44,7 +45,8 @@ def generate_event_summary(event: dict, specify_day: bool=False) -> str:
     """
     Generate a summary for a given event. Summary is simply the place, time and name of the event
 
-    :param event: Event retrieved from the Google Calendar API
+    :param event:       Event retrieved from the Google Calendar API
+    :param specify_day: Whether the weekday for the event should be specified
     """
 
     start = date_parser.parse(event['start']['dateTime']).strftime('%H:%M')
