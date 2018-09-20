@@ -28,6 +28,8 @@ def get_events_summary(date_: str) -> str:
                     Must be an RFC3339 timestamp
     e.g.:           2018-09-20T12:00:00+02:00 or 2018-09-20T12:00:00Z
     """
+
+    # TODO: Ensure that timezone is present in date_start and date_end
     date_start = date_
     # date_end will be 23:59:59 hours ahead of date_start
     date_end = date_parser.parse(date_).replace(hour=23, minute=59, second=59).isoformat()
@@ -41,24 +43,92 @@ def get_events_summary(date_: str) -> str:
     return res
 
 
-def generate_event_summary(event: dict, specify_day: bool=False) -> str:
+def get_by_type(event_type: str, time_min: str, specify_time: bool=True,
+                specify_day: bool=True, specify_location: bool=False) -> str:
+    """
+        Get event time summary for the next event that has a type of event_type and occurs on date_
+        :param event_type:  The type of the event to search form e.g.: 'lecture', 'meeting'
+        :param time_min:    The date on which the event occurs.
+                            Can be None, in which case,
+                            the next event of type event_type is returned
+        """
+
+    original_date = time_min
+    if time_min is None:
+        now = datetime.now()
+        time_min = datetime(now.year, now.month, now.day).isoformat() + 'Z'
+        if not time_min.endswith('Z') and '+' not in time_min:
+            time_min += 'Z'
+    else:
+        dt = date_parser.parse(time_min)
+        time_min = datetime(dt.year, dt.month, dt.day).isoformat()
+        time_max = datetime(dt.year, dt.month, dt.day) \
+            .replace(hour=23, minute=59, second=59).isoformat()
+        if not time_max.endswith('Z') and '+' not in time_max:
+            time_max += 'Z'
+
+    if not time_min.endswith('Z') and '+' not in time_min:
+        time_min += 'Z'
+
+    event_type = event_type.strip().lower()
+
+    if event_type == 'lecture':
+        secondary_event_type = '(le)'
+    elif event_type == 'seminar':
+        secondary_event_type = '(se)'
+    elif event_type == 'exam':
+        secondary_event_type = '(ex)'
+    else:
+        secondary_event_type = None
+
+    if original_date is None:
+        # Get the next event, no matter the day
+        events = calendar_.get_events(time_min=time_min)
+    else:
+        events = calendar_.get_events(time_min=time_min, time_max=time_max)
+
+    for event in events:
+        event_summary = event['summary'].lower()
+        if event_type in event_summary \
+                or (secondary_event_type is not None and secondary_event_type in event_summary):
+            res = generate_event_summary(event,
+                                         specify_time=specify_time,
+                                         specify_day=specify_day,
+                                         specify_location=specify_location)
+            break
+    else:
+        if original_date is None:
+            res = f'No upcoming {event_type} event'
+        else:
+            res = date_parser.parse(time_min).strftime(f'No {event_type} event on %A')
+    return res
+
+
+def generate_event_summary(event: dict, specify_time: bool=True,
+                           specify_day: bool=False, specify_location=True) -> str:
     """
     Generate a summary for a given event. Summary is simply the place, time and name of the event
 
-    :param event:       Event retrieved from the Google Calendar API
-    :param specify_day: Whether the weekday for the event should be specified
+    :param event:               Event retrieved from the Google Calendar API
+    :param specify_time:        Whether the time for the event should be specified
+    :param specify_day:         Whether the weekday for the event should be specified
+    :param specify_location:    Whether the location for the event should be specified
     """
 
+    # TODO: Handle cases when start.dateTime and end.dateTime aren't present
     start = date_parser.parse(event['start']['dateTime']).strftime('%H:%M')
     end = date_parser.parse(event['end']['dateTime']).strftime('%H:%M')
     location = event.get('location', None)
     summary = event.get('summary')
 
-    res = f'{summary} from {start} until {end}'
+    res = f'{summary}'
+
+    if specify_time:
+        res += f' from {start} until {end}'
+    if specify_location and location is not None:
+        res += f' at {location}'
     if specify_day:
         res += date_parser.parse(event['start']['dateTime']).strftime(' on %A')
-    if location:
-        res += f' at {location}'
 
     return res
 
@@ -84,13 +154,17 @@ def calender_action(query_result):
     if not action:
         raise InvalidDataFormat('No specific calendar was provided.')
 
-    parameters = query_result.get('parameters', None)
-
-    if parameters:
-        date = parameters.get('date', None)
+    if 'parameters' in query_result:
+        parameters = query_result.get('parameters')
+        date = None if parameters.get('date', '') == '' else parameters.get('date')
+        event_type = None if parameters.get('event', '') == '' else parameters.get('event')
 
     if action == 'generic':
         res = get_events_summary(date)
     elif action == 'next':
         res = get_next_event()
+    elif action == 'time':
+        res = get_by_type(event_type, date, specify_time=True, specify_day=True, specify_location=False)
+    elif action == 'location':
+        res = get_by_type(event_type, date, specify_time=False, specify_day=False, specify_location=True)
     return res

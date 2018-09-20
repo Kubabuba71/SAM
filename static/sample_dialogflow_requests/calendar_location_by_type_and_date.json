@@ -1,0 +1,12 @@
+{
+  "queryResult": {
+    "queryText": "Where is my lecture on monday?",
+    "action": "calendar.location",
+    "parameters": {
+      "date": "2018-09-26T00:09:45+02:00",
+      "event": "lecture"
+    }
+  },
+  "purposeOfRequest": "The purpose of this request, is to get the location of the next lecture on the specified day",
+  "purposeShort": "Location of next lecture on specified date"
+}
