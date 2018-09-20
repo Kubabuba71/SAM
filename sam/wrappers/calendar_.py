@@ -3,7 +3,7 @@ from ..constants import (GOOGLE_CALENDAR_AUTHORIZATION_URI,
                          GOOGLE_CALENDAR_CLIENT_SECRET,
                          GOOGLE_CALENDAR_REDIRECT_URI, GOOGLE_CALENDAR_SCOPE,
                          GOOGLE_CALENDAR_TOKEN_URI,
-                         GOOGLE_CALENDAR_WRAPPER_STR)
+                         GOOGLE_CALENDAR_WRAPPER_STR, GOOGLE_CALENDAR_CUSTOM_CALENDAR_IDS)
 from ..sessions.oauth2 import OAuth2Session
 
 oauth2 = OAuth2Session(client_id=GOOGLE_CALENDAR_CLIENT_ID,
@@ -17,7 +17,7 @@ oauth2 = OAuth2Session(client_id=GOOGLE_CALENDAR_CLIENT_ID,
 
 
 def get_events(calendar_id='primary', time_min: str=None, time_max: str=None,
-               order_by: str='startTime', **kwargs)-> dict:
+               order_by: str='startTime', **kwargs)-> list:
     """
     Return a list of events
     :param calendar_id:     ID of the calendar for which events are retrieved
@@ -34,8 +34,10 @@ def get_events(calendar_id='primary', time_min: str=None, time_max: str=None,
     }
     
     params.update(kwargs.get('params', dict()))
-
-    res_json = oauth2.get(f'https://www.googleapis.com/calendar/v3/calendars/{calendar_id}/events',
-                          params=params).json()
-    res = res_json['items']
+    calendar_ids = [calendar_id]
+    calendar_ids.extend(GOOGLE_CALENDAR_CUSTOM_CALENDAR_IDS)
+    res = list()
+    for cal_id in calendar_ids:
+        res.extend(oauth2.get(f'https://www.googleapis.com/calendar/v3/calendars/{cal_id}/events',
+                              params=params).json()['items'])
     return res

@@ -34,6 +34,7 @@ GOOGLE_CALENDAR_TOKEN_URI = 'https://www.googleapis.com/oauth2/v3/token'
 GOOGLE_CALENDAR_SCOPE = os.environ['GOOGLE_CALENDAR_SCOPE']
 GOOGLE_CALENDAR_CERTS_URI = 'https://www.googleapis.com/oauth2/v1/certs'
 GOOGLE_CALENDAR_WRAPPER_STR = '_CALENDAR_WRAPPER'
+GOOGLE_CALENDAR_CUSTOM_CALENDAR_IDS = os.environ['GOOGLE_CALENDAR_CUSTOM_CALENDAR_IDS'].split('_')
 
 # Constants related to file serving
 
