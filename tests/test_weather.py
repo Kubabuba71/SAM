@@ -1,28 +1,72 @@
 from sam.requesthandlers import handle_sam_request
 
-
-def test_weather_current(load_dotenv, weather_current):
-    res = handle_sam_request(weather_current)
-    assert 'degrees' in res['fulfillmentText']
+from datetime import date, datetime
 
 
-def test_weather_current_location(load_dotenv, weather_current_location, now_str):
-    weather_current_location['queryResult']['parameters']['date-time'] = now_str
-    weather_current_location['queryResult']['outputContexts'][0]['parameters']['date-time'] = now_str
-    res = handle_sam_request(weather_current_location)
-    assert 'degrees' in res['fulfillmentText']
+def test_weather_current():
+    query = {
+        "queryResult": {
+            "action": "weather",
+            "parameters": {
+                "location": {
+                    "city": "Amsterdam"
+                }
+            }
+        }
+    }
+    res = handle_sam_request(query)
+    assert 'degrees' in res
 
 
-def test_weather_day(load_dotenv, weather_day):
-    res = handle_sam_request(weather_day)
-    assert 'degrees' in res['fulfillmentText']
+def test_weather_current_location(now_str):
+    query = {
+        "queryResult": {
+            "action": "weather",
+            "date-time": now_str,
+            "parameters": {
+                "location": {
+                    "city": "Tbilisi"
+                }
+            }
+        }
+    }
+    res = handle_sam_request(query)
+    assert 'degrees' in res
 
 
-def test_weather_followup_location(load_dotenv, weather_followup_location):
-    res = handle_sam_request(weather_followup_location)
-    assert 'degrees' in res['fulfillmentText']
+def test_weather_day(tomorrow_str):
+    query = {
+        "queryResult": {
+            "action": "weather",
+            "date": tomorrow_str,
+            "parameters": {
+                "location": {
+                    "city": "Tbilisi"
+                }
+            }
+        }
+    }
+    res = handle_sam_request(query)
+    assert 'degrees' in res
 
 
-def test_weather_period(load_dotenv, weather_period):
-    res = handle_sam_request(weather_period)
-    assert 'degrees' in res['fulfillmentText']
+def test_weather_period():
+    today = date.today()
+    start = datetime(today.year, today.month, today.day, 12, 0, 0).isoformat() + 'Z'
+    end = datetime(today.year, today.month, today.day, 16, 0, 0).isoformat() + 'Z'
+    query = {
+        "queryResult": {
+            "action": "weather",
+            "date-time": {
+                "startDateTime": start,
+                "endDateTime": end
+            },
+            "parameters": {
+                "location": {
+                    "city": "Tbilisi"
+                }
+            }
+        }
+    }
+    res = handle_sam_request(query)
+    assert 'degrees' in res
