@@ -164,8 +164,9 @@ def setup_static_endpoints(app):
     """
     @app.route("/", methods=['GET'])
     def hello_get_endpoint():
-        file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, 'sam-text.html'))
-        return send_file(file_path)
+        # file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, 'sam-text.html'))
+        # return send_file(file_path)
+        return 'Hello world 🙃'
 
     @app.route('/static/<filename>', methods=['GET'])
     def static_file_get_endpoint(filename):
