@@ -1,7 +1,7 @@
 import json
 
 
-class SamException(Exception):
+class SamError(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):
@@ -26,7 +26,7 @@ class SamException(Exception):
         return rv
 
 
-class InvalidDataFormat(SamException):
+class InvalidDataFormatError(SamError):
     """
     The format of the data is invalid
     """
@@ -34,7 +34,7 @@ class InvalidDataFormat(SamException):
         super().__init__(message, status_code, payload)
 
 
-class InvalidDataType(SamException):
+class InvalidDataTypeError(SamError):
     """
     The type of the data is invalid
     """
@@ -43,7 +43,7 @@ class InvalidDataType(SamException):
         super().__init__(message, status_code, payload)
 
 
-class InvalidDataValue(SamException):
+class InvalidDataValueError(SamError):
     """
     The value of the data is invalid
     """
@@ -51,7 +51,7 @@ class InvalidDataValue(SamException):
         super().__init__(message, status_code, payload)
 
 
-class NoTokenError(SamException):
+class NoTokenError(SamError):
     """
     No token was provided when accessing some API
     """
@@ -59,7 +59,7 @@ class NoTokenError(SamException):
         super().__init__(message, status_code, payload)
 
 
-class SpotifyPlaylistNotfoundError(SamException):
+class SpotifyPlaylistNotfoundError(SamError):
     """
     Spotify Playlist was not found anywhere
     """

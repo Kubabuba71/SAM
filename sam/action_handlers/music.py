@@ -1,4 +1,4 @@
-from ..exceptions import InvalidDataFormat, InvalidDataValue
+from ..exceptions import InvalidDataFormatError, InvalidDataValueError
 from ..utils import normalize_volume_value
 from ..wrappers import spotify
 
@@ -16,7 +16,7 @@ def play(artist=None, song=None, album=None, playlist=None, device: dict=None):
     elif song:
         res = play_song(song, device=device)
     else:
-        raise InvalidDataFormat('No artist/album/song/playlist was specified')
+        raise InvalidDataFormatError('No artist/album/song/playlist was specified')
     return res
 
 
@@ -81,7 +81,7 @@ def add_current_song_to_playlist(playlist: str):
     :param playlist: The name of the ```playlist``` to which the current song should be added to.
     """
     if playlist is None:
-        raise InvalidDataFormat('playlist parameter not found in request body')
+        raise InvalidDataFormatError('playlist parameter not found in request body')
     song_uri = spotify.currently_playing().json()['item']['uri']
     playlist_id = spotify.get_playlist_uri(playlist).split(':')[-1]
     spotify.add_to_playlist(song_uri, playlist_id)
@@ -203,7 +203,7 @@ def shuffle(shuffle_state=False):
         elif shuffle_state == 'off':
             shuffle_state = False
         else:
-            raise InvalidDataValue(f"shuffle_state value is invalid: {shuffle_state}. "
+            raise InvalidDataValueError(f"shuffle_state value is invalid: {shuffle_state}. "
                                    f"Valid values are: 'on', 'off', true, false")
     spotify.shuffle(shuffle_state)
     return f'Shuffle state set to {shuffle_state}'
@@ -246,7 +246,7 @@ def music_action(query_result: dict):
     action = query_result.get('action').split('.')[1]
 
     if not action:
-        raise InvalidDataFormat('No specific music action was provided.')
+        raise InvalidDataFormatError('No specific music action was provided.')
 
     parameters = query_result.get('parameters', None)
 
@@ -288,5 +288,5 @@ def music_action(query_result: dict):
     elif action == 'volume_increase':
         res = volume_increase(volume_amount)
     else:
-        raise InvalidDataFormat(f'Specified action is invalid: {action}')
+        raise InvalidDataFormatError(f'Specified action is invalid: {action}')
     return res

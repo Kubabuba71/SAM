@@ -3,7 +3,7 @@ from time import time
 
 from requests import Response
 
-from .exceptions import NoTokenError, SamException
+from .exceptions import NoTokenError, SamError
 
 log = print
 
@@ -45,9 +45,9 @@ def verify_status_code(func):
             # No token provided
             raise NoTokenError('SAM does not have a token to connect to Spotify with', res.status_code)
         elif res.status_code < 200 or res.status_code >= 300:
-            raise SamException(f'Error during a {res.request.method} to {res.request.url}',
-                               status_code=res.status_code,
-                               payload=res.text)
+            raise SamError(f'Error during a {res.request.method} to {res.request.url}',
+                           status_code=res.status_code,
+                           payload=res.text)
         return res
     return decorated
 
