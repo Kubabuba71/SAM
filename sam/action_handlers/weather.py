@@ -235,7 +235,7 @@ def weather_action(query_result: dict):
         output_contexts = query_result.get('outputContexts')
         if specific_action == 'location':
             # Have to get date-time from previous request
-            date_time = output_contexts[0]['parameters']['datetime']
+            date_time = output_contexts[0]['parameters']['date-time']
             location = parameters.get('location')
         elif specific_action == 'time':
             # Have to get location from previous request
