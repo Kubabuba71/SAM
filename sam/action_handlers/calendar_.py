@@ -1,4 +1,4 @@
-from ..exceptions import InvalidDataFormat
+from ..exceptions import InvalidDataFormatError
 from ..wrappers import calendar_
 from dateutil import parser as date_parser
 from datetime import datetime
@@ -152,7 +152,7 @@ def calender_action(query_result):
     action = query_result.get('action').split('.')[1]
 
     if not action:
-        raise InvalidDataFormat('No specific calendar was provided.')
+        raise InvalidDataFormatError('No specific calendar was provided.')
 
     if 'parameters' in query_result:
         parameters = query_result.get('parameters')

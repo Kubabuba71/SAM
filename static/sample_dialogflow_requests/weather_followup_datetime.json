@@ -1,0 +1,26 @@
+{
+  "queryResult": {
+    "queryText": "What about tomorrow?",
+    "action": "weather.time.followup",
+    "parameters": {
+      "date-time": "2018-10-08T16:00:00+02:00"
+    },
+    "outputContexts": [
+      {
+        "name": "projects/sam-rxjabc/agent/sessions/3293558d-a62d-41c0-a700-e08a81ef89f2/contexts/weather",
+        "lifespanCount": 2,
+        "parameters": {
+          "date-time.original": "tomorrow?",
+          "location.original": "amsterdam?",
+          "date-time": "2018-10-08T12:00:00+02:00",
+          "location": {
+            "city": "Amsterdam",
+            "city.original": "amsterdam?"
+          }
+        }
+      }
+    ]
+  },
+  "purposeOfRequest": "The purpose of this request, is to retrieve the weather for the specified datetime, using same location of a previous request",
+  "purposeShort": "Weather for datetime based on previous request"
+}

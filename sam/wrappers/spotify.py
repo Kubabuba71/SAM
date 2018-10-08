@@ -4,7 +4,7 @@ from ..constants import (SPOTIFY_BASE_AUTHORIZATION_URL, SPOTIFY_CLIENT_ID,
                          SPOTIFY_CLIENT_SECRET, SPOTIFY_PLAYLISTS_FILE,
                          SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPE,
                          SPOTIFY_TOKEN_URL, SPOTIFY_WRAPPER_STR)
-from ..exceptions import InvalidDataType, SpotifyPlaylistNotfoundError
+from ..exceptions import InvalidDataTypeError, SpotifyPlaylistNotfoundError
 from ..sessions.oauth2 import OAuth2Session
 from ..utils import log, now_str
 
@@ -93,7 +93,7 @@ def get_device_object(device_in: "str dict") -> dict:
         assert 'id' in device_in and 'name' in device_in
         return device_in
     else:
-        raise InvalidDataType(f'The type of `device_in` is invalid: '
+        raise InvalidDataTypeError(f'The type of `device_in` is invalid: '
                               f'{type(device_in).__name__}')
     return device
 

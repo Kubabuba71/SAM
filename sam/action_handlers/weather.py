@@ -5,6 +5,8 @@ from datetime import datetime
 
 from dateutil import parser as date_parser
 
+from ..exceptions import InvalidDataFormatError
+
 from ..constants import (DARK_SKY_KEY, DARK_SKY_URL, GOOGLE_MAPS_GEOCODE_KEY,
                          GOOGLE_MAPS_GEOCODE_URL, GOOGLE_MAPS_TIMEZONE_KEY,
                          GOOGLE_MAPS_TIMEZONE_URL, WEATHER_PARAMETERS)
@@ -162,8 +164,7 @@ def get_weather_summary_for_hour(datetime_, coordinates):
             return res
 
 
-def get_weather_summary_for_day(datetime_, coordinates):
-    # type: (dict, str) -> str
+def get_weather_summary_for_day(datetime_: datetime, coordinates: str) -> str:
     """
     Returns weather summary for the entire day
 
@@ -172,6 +173,9 @@ def get_weather_summary_for_day(datetime_, coordinates):
     :param coordinates: dict containing the lat and lng keys (and their respective values)
     :returns: a str summary of the weather on the specified day located at coordinates
     """
+
+    if datetime_.timestamp() < datetime.utcnow().timestamp():
+        raise InvalidDataFormatError(f'{datetime_.isoformat()} is in the past')
     new_datetime = datetime(
         datetime_.year,
         datetime_.month,
@@ -222,10 +226,26 @@ def weather_action(query_result: dict):
     """
     if 'queryResult' in query_result:
         query_result = query_result['queryResult']
+
     parameters = query_result.get('parameters')
-    date_time = parameters.get('date-time', None)
-    date = parameters.get('date', None)
-    location = parameters.get('location', None)
+    action = query_result.get('action')
+
+    if action.endswith('followup'):
+        specific_action = action.split('.')[1]
+        output_contexts = query_result.get('outputContexts')
+        if specific_action == 'location':
+            # Have to get date-time from previous request
+            date_time = output_contexts[0]['parameters']['date-time']
+            location = parameters.get('location')
+        elif specific_action == 'time':
+            # Have to get location from previous request
+            location = output_contexts[0]['parameters']['location']
+            date_time = parameters.get('date-time', None)
+
+    else:
+        date_time = parameters.get('date-time', None)
+        location = parameters.get('location', None)
+
     if isinstance(location, dict):
         location = location['city']
     coordinates = get_coordinates(location)
@@ -261,11 +281,7 @@ def weather_action(query_result: dict):
             datetime_object: datetime = date_parser.parse(date_time)
 
             if len(date_time) == 25:
-                # 2018-08-04T12:00:00+02:00
-                # This could be asking for the weather on a specific day, or for the current weather
-                # e.g.: 'What is the weather right now()
                 now_timestamp = datetime.utcnow().timestamp()
-                # check if now within a minute of datetime_object
                 datetime_object_timestamp = datetime_object.timestamp()
                 if datetime_object_timestamp - 60.0 <= now_timestamp <= datetime_object_timestamp + 60.0:
                     # Get current weather
@@ -274,13 +290,8 @@ def weather_action(query_result: dict):
                     res = get_weather_summary_for_day(datetime_object, coordinates)
 
             else:
-                res = f'The given datetime format is invalid: {datetime_}'
-                # raise InvalidDataFormat(f'The given datetime format is invalid: {datetime_}')
+                raise InvalidDataFormatError(f'The given datetime format is invalid: {datetime_}')
 
-    elif date:
-        # Get the weather for a specific date
-        datetime_object = date_parser.parse(date)
-        res = get_weather_summary_for_day(datetime_object, coordinates)
     else:
         # Assume that the weather is for the current time
         res = get_weather_summary_current(coordinates)
