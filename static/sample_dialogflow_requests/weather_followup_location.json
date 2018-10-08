@@ -1,6 +1,6 @@
 {
   "queryResult": {
-    "action": "weather.followup.location",
+    "action": "weather.location.followup",
     "parameters": {
       "location": {
         "city": "Amsterdam"
@@ -11,11 +11,11 @@
         "name": "weather",
         "parameters": {
           "date-time.original": "",
-          "location.original": "amsterdam?",
-          "date-time": "",
+          "location.original": "Tbilisi?",
+          "date-time": "2018-10-08T16:00:00+02:00",
           "location": {
-            "city": "Amsterdam",
-            "city.original": "amsterdam?",
+            "city": "Tbilisi",
+            "city.original": "Tbilisi?",
             "city.object": {}
           }
         }
