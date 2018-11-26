@@ -168,9 +168,22 @@ def setup_static_endpoints(app):
         # return send_file(file_path)
         return 'Hello world 🙃'
 
+    @app.route('/bd', methods=['GET'])
+    def bd():
+        file_path = os.path.abspath(os.path.join(STATIC_FILE_DIRECTORY, 'index.html'))
+        return send_file(file_path)
+
     @app.route('/static/<filename>', methods=['GET'])
     def static_file_get_endpoint(filename):
         file_path = os.path.abspath(os.path.join(STATIC_FILES_DIRECTORY, filename))
         return send_file(file_path)
+
+    @app.route('/smile', methods=['GET'])
+    def smile():
+        return 'Just smile 😊'
+
+    @app.route('/bday', methods=['GET'])
+    def bday():
+        return 'Happy birthday 😊'
 
     return app

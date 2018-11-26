@@ -177,8 +177,8 @@ def volume_decrease(volume_amount=10):
     """
     volume_amount = normalize_volume_value(volume_amount)
     current_volume_percent = spotify.current_volume()
-    if current_volume_percent == 100:
-        return 'At max volume'
+    if current_volume_percent == 0:
+        return 'At min volume'
     new_volume_percent = current_volume_percent - volume_amount
     if new_volume_percent > 100:
         new_volume_percent = 100
